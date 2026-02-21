@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Área de Membros Local</title>
+    <style>
+        :root {
+            --primary-color: #5f27cd; 
+            --bg-body: #f1f2f6;
+            --sidebar-bg: #ffffff;
+            --text-color: #2f3542;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-body);
+        }
+
+        .app-container { display: flex; width: 100%; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modulo-title {
+            padding: 15px;
+            background: #f8f9fa;
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lista-aulas { list-style: none; padding: 0; margin: 0; }
+
+        .aula-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 14px;
+        }
+
+        .aula-item:hover { background: #f0f7ff; }
+        .aula-item.active {
+            background: #ecf0f1;
+            border-left: 5px solid var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Área do Player */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 900px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .video-info {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Curso Offline</h3>
+                <small>Acesso via Pasta</small>
+            </div>
+
+            <div class="modulo">
+                <div class="modulo-title">Módulo 1: Introdução</div>
+                <ul class="lista-aulas">
+                    <li class="aula-item active" onclick="trocarVideoLocal(this, 'videos/aula1.mp4', 'Bem-vindo', 'Descrição da aula 1')">1. Introdução</li>
+                    <li class="aula-item" onclick="trocarVideoLocal(this, 'videos/aula2.mp4', 'Instalação', 'Descrição da aula 2')">2. Como instalar</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="video-container">
+                <video id="meu-video" controls controlsList="nodownload">
+                    <source src="videos/aula1.mp4" type="video/mp4">
+                    Seu navegador não suporta vídeos HTML5.
+                </video>
+            </div>
+
+            <div class="video-info">
+                <h2 id="titulo-aula">Bem-vindo</h2>
+                <hr>
+                <p id="desc-aula">Descrição da aula 1</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function trocarVideoLocal(elemento, caminhoVideo, titulo, descricao) {
+            const videoPlayer = document.getElementById('meu-video');
+            
+            // Troca a fonte do vídeo
+            videoPlayer.src = caminhoVideo;
+            videoPlayer.load(); // Carrega o novo arquivo
+            videoPlayer.play(); // Dá o play automaticamente
+
+            // Atualiza textos
+            document.getElementById('titulo-aula').innerText = titulo;
+            document.getElementById('desc-aula').innerText = descricao;
+
+            // Destaque na barra lateral
+            const aulas = document.querySelectorAll('.aula-item');
+            aulas.forEach(a => a.classList.remove('active'));
+            elemento.classList.add('active');
+        }
+    </script>
+</body>
+</html>
