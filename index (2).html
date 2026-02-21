@@ -3,148 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Área de Membros Local</title>
+    <title>Plataforma de Curso</title>
     <style>
-        :root {
-            --primary-color: #5f27cd; 
-            --bg-body: #f1f2f6;
-            --sidebar-bg: #ffffff;
-            --text-color: #2f3542;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            background-color: var(--bg-body);
-        }
-
-        .app-container { display: flex; width: 100%; }
-
-        /* Sidebar */
-        .sidebar {
-            width: 320px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid #ddd;
-            overflow-y: auto;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .modulo-title {
-            padding: 15px;
-            background: #f8f9fa;
-            font-weight: bold;
-            border-bottom: 1px solid #eee;
-        }
-
-        .lista-aulas { list-style: none; padding: 0; margin: 0; }
-
-        .aula-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f1f1;
-            font-size: 14px;
-        }
-
+        :root { --primary: #5f27cd; --bg: #f1f2f6; }
+        body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); }
+        .sidebar { width: 300px; background: white; border-right: 1px solid #ddd; overflow-y: auto; }
+        .header-side { padding: 20px; background: var(--primary); color: white; }
+        .aula-item { padding: 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.3s; }
         .aula-item:hover { background: #f0f7ff; }
-        .aula-item.active {
-            background: #ecf0f1;
-            border-left: 5px solid var(--primary-color);
-            font-weight: bold;
-        }
-
-        /* Área do Player */
-        .main-content {
-            flex-grow: 1;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .video-container {
-            width: 100%;
-            max-width: 900px;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        video {
-            width: 100%;
-            display: block;
-        }
-
-        .video-info {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-sizing: border-box;
-        }
+        .aula-item.active { border-left: 5px solid var(--primary); background: #f1f2f6; font-weight: bold; }
+        .main { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .video-box { width: 100%; max-width: 850px; aspect-ratio: 16/9; background: black; border-radius: 8px; overflow: hidden; }
+        iframe, video { width: 100%; height: 100%; }
+        .info { width: 100%; max-width: 850px; margin-top: 20px; background: white; padding: 20px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h3>Curso Offline</h3>
-                <small>Acesso via Pasta</small>
-            </div>
-
-            <div class="modulo">
-                <div class="modulo-title">Módulo 1: Introdução</div>
-                <ul class="lista-aulas">
-                    <li class="aula-item active" onclick="trocarVideoLocal(this, 'videos/aula1.mp4', 'Bem-vindo', 'Descrição da aula 1')">1. Introdução</li>
-                    <li class="aula-item" onclick="trocarVideoLocal(this, 'videos/aula2.mp4', 'Instalação', 'Descrição da aula 2')">2. Como instalar</li>
-                </ul>
-            </div>
-        </aside>
-
-        <main class="main-content">
-            <div class="video-container">
-                <video id="meu-video" controls controlsList="nodownload">
-                    <source src="videos/aula1.mp4" type="video/mp4">
-                    Seu navegador não suporta vídeos HTML5.
-                </video>
-            </div>
-
-            <div class="video-info">
-                <h2 id="titulo-aula">Bem-vindo</h2>
-                <hr>
-                <p id="desc-aula">Descrição da aula 1</p>
-            </div>
-        </main>
+<aside class="sidebar">
+    <div class="header-side"><h3>Meu Curso</h3></div>
+    <div id="lista-aulas">
+        <div class="aula-item active" onclick="mudar('14emeHEME7o_c4pn0t1iG8ZQNWDLj1caD', 'Aula 1', 'Introdução ao curso')">1. Boas-vindas</div>
+        <div class="aula-item" onclick="mudar('OUTRO_ID', 'Aula 2', 'Configurações')">2. Primeiros Passos</div>
     </div>
+</aside>
 
-    <script>
-        function trocarVideoLocal(elemento, caminhoVideo, titulo, descricao) {
-            const videoPlayer = document.getElementById('meu-video');
-            
-            // Troca a fonte do vídeo
-            videoPlayer.src = caminhoVideo;
-            videoPlayer.load(); // Carrega o novo arquivo
-            videoPlayer.play(); // Dá o play automaticamente
+<main class="main">
+    <div class="video-box">
+        <iframe id="player" src="" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <div class="info">
+        <h2 id="titulo">Selecione uma aula</h2>
+        <p id="desc">Descrição da aula aparecerá aqui.</p>
+    </div>
+</main>
 
-            // Atualiza textos
-            document.getElementById('titulo-aula').innerText = titulo;
-            document.getElementById('desc-aula').innerText = descricao;
+<script>
+function mudar(id, titulo, desc) {
+    // Para Google Drive, o link de embed é esse:
+    const url = "https://drive.google.com/file/d/" + id + "/preview";
+    
+    document.getElementById('player').src = url;
+    document.getElementById('titulo').innerText = titulo;
+    document.getElementById('desc').innerText = desc;
 
-            // Destaque na barra lateral
-            const aulas = document.querySelectorAll('.aula-item');
-            aulas.forEach(a => a.classList.remove('active'));
-            elemento.classList.add('active');
-        }
-    </script>
+    // Remove classe active
+    document.querySelectorAll('.aula-item').forEach(el => el.classList.remove('active'));
+    // Adiciona no clicado
+    event.currentTarget.classList.add('active');
+}
+</script>
+
 </body>
 </html>
