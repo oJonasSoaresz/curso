@@ -2,58 +2,252 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plataforma de Curso</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LinkBuilder SaaS Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #5f27cd; --bg: #f1f2f6; }
-        body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); }
-        .sidebar { width: 300px; background: white; border-right: 1px solid #ddd; overflow-y: auto; }
-        .header-side { padding: 20px; background: var(--primary); color: white; }
-        .aula-item { padding: 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.3s; }
-        .aula-item:hover { background: #f0f7ff; }
-        .aula-item.active { border-left: 5px solid var(--primary); background: #f1f2f6; font-weight: bold; }
-        .main { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .video-box { width: 100%; max-width: 850px; aspect-ratio: 16/9; background: black; border-radius: 8px; overflow: hidden; }
-        iframe, video { width: 100%; height: 100%; }
-        .info { width: 100%; max-width: 850px; margin-top: 20px; background: white; padding: 20px; border-radius: 8px; }
+        :root { --primary: #4f46e5; --bg: #f8fafc; --text: #1e293b; --success: #10b981; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
+
+        header { background: white; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+
+        .main-content { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .section-card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { font-size: 0.85rem; margin-bottom: 15px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #475569; }
+        input[type="text"], input[type="file"], input[type="password"], textarea {
+            width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px; background: #fdfdfd;
+        }
+
+        /* Links */
+        .link-entry { background: #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 15px; position: relative; border-left: 5px solid var(--primary); }
+        .btn-remove { position: absolute; top: 10px; right: 10px; color: #ef4444; background: none; border: none; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-add { width: 100%; padding: 15px; background: white; color: var(--primary); border: 2px dashed var(--primary); border-radius: 12px; font-weight: 600; cursor: pointer; margin-bottom: 20px; }
+
+        /* Preview Modal */
+        #preview-modal, #publish-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        
+        /* Modal de Publicação Estilizado */
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 24px; padding: 30px; position: relative; animation: popUp 0.3s ease; }
+        @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        #phone-container { width: 100%; max-width: 320px; height: 80vh; background: #0f172a; border-radius: 40px; padding: 40px 20px; color: white; overflow-y: auto; text-align: center; border: 6px solid #334155; }
+        
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #64748b; }
+
+        /* Botões */
+        .btn-view-preview { position: fixed; bottom: 90px; right: 20px; background: var(--primary); color: white; padding: 15px 25px; border-radius: 30px; font-weight: bold; border: none; z-index: 99; box-shadow: 0 10px 20px rgba(79,70,229,0.3); }
+        .footer-actions { padding: 15px 20px; background: white; border-top: 1px solid #e2e8f0; position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; left: 50%; transform: translateX(-50%); max-width: 600px; }
+        .btn-action { flex: 1; padding: 16px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .btn-github { background: #24292f; color: white; }
+        .btn-download { background: var(--success); color: white; }
+
+        /* Elementos Internos Preview */
+        #pv-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; border: 2px solid var(--primary); }
+        .pv-link { display: block; padding: 12px; margin: 8px 0; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; }
+
+        /* Loading Spinner */
+        #loading { display: none; margin-top: 15px; font-size: 14px; color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
-<aside class="sidebar">
-    <div class="header-side"><h3>Meu Curso</h3></div>
-    <div id="lista-aulas">
-        <div class="aula-item active" onclick="mudar('14emeHEME7o_c4pn0t1iG8ZQNWDLj1caD', 'Aula 1', 'Introdução ao curso')">1. Boas-vindas</div>
-        <div class="aula-item" onclick="mudar('OUTRO_ID', 'Aula 2', 'Configurações')">2. Primeiros Passos</div>
+    <header>
+        <div class="logo">LinkBuilder SaaS 🚀</div>
+    </header>
+
+    <div class="main-content">
+        <div class="section-card">
+            <h2>1. Perfil</h2>
+            <div class="input-group">
+                <label>Foto de Perfil</label>
+                <input type="file" onchange="handleImage(this)">
+            </div>
+            <div class="input-group">
+                <label>Seu Nome / @</label>
+                <input type="text" id="in-name" placeholder="@exemplo" oninput="sync()">
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>2. Cores</h2>
+            <div style="display: flex; gap: 10px;">
+                <input type="color" id="in-bg" value="#0f172a" oninput="sync()" style="height: 50px;">
+                <input type="color" id="in-accent" value="#4f46e5" oninput="sync()" style="height: 50px;">
+            </div>
+        </div>
+
+        <div id="links-list">
+            <h2>3. Seus Links</h2>
+        </div>
+        <button class="btn-add" onclick="addLink()">+ Adicionar Link</button>
     </div>
-</aside>
 
-<main class="main">
-    <div class="video-box">
-        <iframe id="player" src="" frameborder="0" allowfullscreen></iframe>
+    <div id="preview-modal">
+        <span class="close-modal" onclick="toggleModal('preview-modal', false)" style="color:white">✕</span>
+        <div id="phone-container">
+            <img src="https://via.placeholder.com/150" id="pv-img">
+            <h3 id="pv-name">@seu.nome</h3>
+            <div id="pv-links" style="margin-top: 20px;"></div>
+        </div>
     </div>
-    <div class="info">
-        <h2 id="titulo">Selecione uma aula</h2>
-        <p id="desc">Descrição da aula aparecerá aqui.</p>
+
+    <div id="publish-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="toggleModal('publish-modal', false)">✕</span>
+            <h3 style="margin-bottom: 20px;">Publicar no GitHub</h3>
+            
+            <div class="input-group">
+                <label>Seu Usuário GitHub</label>
+                <input type="text" id="gh-user" placeholder="ex: joaosilva">
+            </div>
+            <div class="input-group">
+                <label>Nome do Projeto</label>
+                <input type="text" id="gh-repo" placeholder="meu-linktree">
+            </div>
+            <div class="input-group">
+                <label>GitHub Token (PAT)</label>
+                <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+            </div>
+
+            <button class="btn-action btn-github" style="width: 100%;" onclick="startDeploy()">🚀 Iniciar Deploy Agora</button>
+            <div id="loading">⏳ Publicando seu site... Aguarde.</div>
+        </div>
     </div>
-</main>
 
-<script>
-function mudar(id, titulo, desc) {
-    // Para Google Drive, o link de embed é esse:
-    const url = "https://drive.google.com/file/d/" + id + "/preview";
-    
-    document.getElementById('player').src = url;
-    document.getElementById('titulo').innerText = titulo;
-    document.getElementById('desc').innerText = desc;
+    <button class="btn-view-preview" onclick="toggleModal('preview-modal', true)">👁️ Preview</button>
 
-    // Remove classe active
-    document.querySelectorAll('.aula-item').forEach(el => el.classList.remove('active'));
-    // Adiciona no clicado
-    event.currentTarget.classList.add('active');
-}
-</script>
+    <div class="footer-actions">
+        <button class="btn-action btn-download" onclick="downloadSite()">Baixar HTML</button>
+        <button class="btn-action btn-github" onclick="toggleModal('publish-modal', true)">Publicar Online</button>
+    </div>
 
+    <script>
+        let links = [];
+        let base64Image = "https://via.placeholder.com/150";
+
+        function handleImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    base64Image = e.target.result;
+                    document.getElementById('pv-img').src = base64Image;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addLink() {
+            const id = Date.now();
+            links.push({ id, title: '', url: '' });
+            renderInputs();
+        }
+
+        function renderInputs() {
+            const container = document.getElementById('links-list');
+            container.innerHTML = '<h2>3. Seus Links</h2>';
+            links.forEach(l => {
+                const div = document.createElement('div');
+                div.className = 'link-entry';
+                div.innerHTML = `
+                    <button class="btn-remove" onclick="removeLink(${l.id})">REMOVER</button>
+                    <input type="text" placeholder="Título" value="${l.title}" oninput="updateLink(${l.id}, 'title', this.value)" style="margin-bottom:8px">
+                    <input type="text" placeholder="https://..." value="${l.url}" oninput="updateLink(${l.id}, 'url', this.value)">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateLink(id, field, value) {
+            const link = links.find(l => l.id === id);
+            link[field] = value;
+            sync();
+        }
+
+        function removeLink(id) {
+            links = links.filter(l => l.id !== id);
+            renderInputs();
+            sync();
+        }
+
+        function sync() {
+            const bg = document.getElementById('in-bg').value;
+            const accent = document.getElementById('in-accent').value;
+            document.getElementById('phone-container').style.backgroundColor = bg;
+            document.getElementById('pv-name').innerText = document.getElementById('in-name').value || "@seu.nome";
+            let html = '';
+            links.forEach(l => {
+                if(l.title) html += `<div class="pv-link" style="background:${accent}; color:white;">${l.title}</div>`;
+            });
+            document.getElementById('pv-links').innerHTML = html;
+        }
+
+        function toggleModal(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
+        }
+
+        function generateHTML() {
+            const name = document.getElementById('in-name').value || "Meu Site";
+            const bg = document.getElementById('in-bg').value;
+            const accent = document.getElementById('in-accent').value;
+            return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${name}</title><style>body{background:${bg};color:white;font-family:sans-serif;display:flex;justify-content:center;padding:40px 20px;text-align:center;}img{width:100px;height:100px;border-radius:50%;border:3px solid ${accent};margin-bottom:15px;}.link{display:block;background:${accent};color:white;padding:16px;margin:12px 0;border-radius:15px;text-decoration:none;font-weight:bold;}</style></head><body><div><img src="${base64Image}"><h1>${name}</h1>${links.map(l => l.title ? `<a href="${l.url}" class="link">${l.title}</a>` : '').join('')}</div></body></html>`;
+        }
+
+        function downloadSite() {
+            const blob = new Blob([generateHTML()], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'index.html'; a.click();
+        }
+
+        async function startDeploy() {
+            const user = document.getElementById('gh-user').value;
+            const repo = document.getElementById('gh-repo').value;
+            const token = document.getElementById('gh-token').value;
+            const loading = document.getElementById('loading');
+
+            if(!user || !repo || !token) return alert("Preencha todos os campos do GitHub!");
+            
+            loading.style.display = "block";
+            const content = btoa(unescape(encodeURIComponent(generateHTML())));
+
+            try {
+                // 1. Criar Repo
+                const res = await fetch('https://api.github.com/user/repos', {
+                    method: 'POST',
+                    headers: { 'Authorization': `token ${token}` },
+                    body: JSON.stringify({ name: repo, auto_init: true })
+                });
+
+                // 2. Criar arquivo (espera um pouco para o repo inicializar)
+                setTimeout(async () => {
+                    await fetch(`https://api.github.com/repos/${user}/${repo}/contents/index.html`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `token ${token}` },
+                        body: JSON.stringify({ message: "SaaS Deploy", content: content })
+                    });
+
+                    // 3. Ativar Pages
+                    await fetch(`https://api.github.com/repos/${user}/${repo}/pages`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' },
+                        body: JSON.stringify({ source: { branch: 'main', path: '/' } })
+                    });
+
+                    loading.innerHTML = `✅ Site Online! <a href="https://${user}.github.io/${repo}" target="_blank" style="color:var(--success)">Clique aqui para ver</a>`;
+                }, 2000);
+
+            } catch (e) {
+                alert("Erro ao publicar. Verifique os dados.");
+                loading.style.display = "none";
+            }
+        }
+
+        addLink();
+    </script>
 </body>
 </html>
-
