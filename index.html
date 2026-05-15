@@ -686,9 +686,10 @@ async function compartilharQR(id, nome, evento) {
 }
 
 // ─── CÂMERA / LEITURA ────────────────────────────────────
-let stream = null, scanInterval = null, ultimoId = '', bloqueado = false;
+let stream = null, scanRodando = false, ultimoId = '', bloqueado = false;
+let detector = null;
 const scanCanvas = document.createElement('canvas');
-const scanCtx = scanCanvas.getContext('2d');
+const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
 
 function logDebug(msg) {
   const el = document.getElementById('scan-debug');
@@ -696,80 +697,106 @@ function logDebug(msg) {
 }
 
 async function iniciarCamera() {
-  const video = document.getElementById('video');
+  logDebug('Iniciando câmera...');
 
-  // tenta câmera traseira primeiro, depois qualquer câmera
-  const constraints = [
+  // Tenta obter stream
+  let s = null;
+  for (const c of [
     { video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
     { video: { facingMode: 'environment' } },
+    { video: { width: { ideal: 1280 }, height: { ideal: 720 } } },
     { video: true }
-  ];
-
-  let ok = false;
-  for (const c of constraints) {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia(c);
-      ok = true;
-      break;
-    } catch(e) { /* tenta o próximo */ }
+  ]) {
+    try { s = await navigator.mediaDevices.getUserMedia(c); break; }
+    catch(e) { continue; }
   }
 
-  if (!ok) {
-    alert('Não foi possível acessar a câmera.\nVerifique as permissões no navegador e tente novamente.');
+  if (!s) {
+    alert('Não foi possível acessar a câmera.\nVerifique as permissões no navegador.');
+    logDebug('Erro: câmera não disponível.');
     return;
   }
 
+  stream = s;
+  const video = document.getElementById('video');
   video.srcObject = stream;
+  video.setAttribute('playsinline', true);
+  video.muted = true;
 
-  // espera o vídeo estar pronto de verdade
-  video.onloadedmetadata = () => {
-    video.play().then(() => {
-      document.getElementById('video-container').style.display = 'block';
-      document.getElementById('btn-camera').style.display = 'none';
-      document.getElementById('btn-parar').style.display = 'flex';
-      logDebug('Câmera ativa — aponte para o QR Code');
-      iniciarScan(video);
-    }).catch(e => alert('Erro ao iniciar vídeo: ' + e.message));
-  };
-}
+  await new Promise(resolve => {
+    video.onloadedmetadata = () => resolve();
+  });
 
-function iniciarScan(video) {
-  if (scanInterval) clearInterval(scanInterval);
+  try { await video.play(); } catch(e) {}
 
-  scanInterval = setInterval(() => {
-    if (bloqueado) return;
-    if (video.readyState < 2 || video.videoWidth === 0) {
-      logDebug('Aguardando vídeo...');
+  document.getElementById('video-container').style.display = 'block';
+  document.getElementById('btn-camera').style.display = 'none';
+  document.getElementById('btn-parar').style.display = 'flex';
+
+  // Detecta qual engine usar
+  const temNativo = typeof BarcodeDetector !== 'undefined';
+  if (temNativo) {
+    const formatos = await BarcodeDetector.getSupportedFormats();
+    if (formatos.includes('qr_code')) {
+      detector = new BarcodeDetector({ formats: ['qr_code'] });
+      logDebug('Leitor nativo ativo — aponte para o QR Code');
+      scanRodando = true;
+      loopNativo(video);
       return;
     }
+  }
 
+  // Fallback: jsQR via canvas
+  logDebug('Leitor via canvas ativo — aponte para o QR Code');
+  scanRodando = true;
+  loopJsQR(video);
+}
+
+// Engine 1: BarcodeDetector (nativo Android/Chrome/Safari iOS 17+)
+async function loopNativo(video) {
+  if (!scanRodando) return;
+  if (bloqueado) { requestAnimationFrame(() => loopNativo(video)); return; }
+
+  try {
+    const codes = await detector.detect(video);
+    if (codes.length > 0) {
+      const val = codes[0].rawValue;
+      if (val && val !== ultimoId) {
+        ultimoId = val;
+        logDebug('QR detectado!');
+        validarIngresso(val);
+      }
+    }
+  } catch(e) {}
+
+  requestAnimationFrame(() => loopNativo(video));
+}
+
+// Engine 2: jsQR via canvas (fallback)
+function loopJsQR(video) {
+  if (!scanRodando) return;
+
+  if (!bloqueado && video.readyState >= 2 && video.videoWidth > 0) {
     scanCanvas.width  = video.videoWidth;
     scanCanvas.height = video.videoHeight;
-    scanCtx.drawImage(video, 0, 0, scanCanvas.width, scanCanvas.height);
+    scanCtx.drawImage(video, 0, 0);
 
-    let imgData;
     try {
-      imgData = scanCtx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
-    } catch(e) { return; }
-
-    const code = jsQR(imgData.data, imgData.width, imgData.height, {
-      inversionAttempts: 'dontInvert'
-    });
-
-    if (code && code.data) {
-      if (code.data !== ultimoId) {
+      const imgData = scanCtx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
+      const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });
+      if (code && code.data && code.data !== ultimoId) {
         ultimoId = code.data;
         logDebug('QR detectado!');
         validarIngresso(code.data);
       }
-    } else {
-      logDebug('Procurando QR Code...');
-    }
-  }, 250); // verifica 4x por segundo
+    } catch(e) {}
+  }
+
+  setTimeout(() => loopJsQR(video), 300);
 }
 
 function pararCamera() {
-  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  scanRodando = false;
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
   ultimoId = '';
   bloqueado = false;
