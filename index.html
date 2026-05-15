@@ -7,7 +7,7 @@
 
   <!-- Bibliotecas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+  <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
 
@@ -685,11 +685,8 @@ async function compartilharQR(id, nome, evento) {
   }
 }
 
-// ─── CÂMERA / LEITURA ────────────────────────────────────
-let stream = null, scanRodando = false, ultimoId = '', bloqueado = false;
-let detector = null;
-const scanCanvas = document.createElement('canvas');
-const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+// ─── CÂMERA / LEITURA (ZXing — funciona em iPhone, Android, qualquer navegador) ───
+let zxingReader = null, ultimoId = '', bloqueado = false;
 
 function logDebug(msg) {
   const el = document.getElementById('scan-debug');
@@ -698,110 +695,63 @@ function logDebug(msg) {
 
 async function iniciarCamera() {
   logDebug('Iniciando câmera...');
-
-  // Tenta obter stream
-  let s = null;
-  for (const c of [
-    { video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
-    { video: { facingMode: 'environment' } },
-    { video: { width: { ideal: 1280 }, height: { ideal: 720 } } },
-    { video: true }
-  ]) {
-    try { s = await navigator.mediaDevices.getUserMedia(c); break; }
-    catch(e) { continue; }
-  }
-
-  if (!s) {
-    alert('Não foi possível acessar a câmera.\nVerifique as permissões no navegador.');
-    logDebug('Erro: câmera não disponível.');
-    return;
-  }
-
-  stream = s;
-  const video = document.getElementById('video');
-  video.srcObject = stream;
-  video.setAttribute('playsinline', true);
-  video.muted = true;
-
-  await new Promise(resolve => {
-    video.onloadedmetadata = () => resolve();
-  });
-
-  try { await video.play(); } catch(e) {}
-
-  document.getElementById('video-container').style.display = 'block';
-  document.getElementById('btn-camera').style.display = 'none';
-  document.getElementById('btn-parar').style.display = 'flex';
-
-  // Detecta qual engine usar
-  const temNativo = typeof BarcodeDetector !== 'undefined';
-  if (temNativo) {
-    const formatos = await BarcodeDetector.getSupportedFormats();
-    if (formatos.includes('qr_code')) {
-      detector = new BarcodeDetector({ formats: ['qr_code'] });
-      logDebug('Leitor nativo ativo — aponte para o QR Code');
-      scanRodando = true;
-      loopNativo(video);
-      return;
-    }
-  }
-
-  // Fallback: jsQR via canvas
-  logDebug('Leitor via canvas ativo — aponte para o QR Code');
-  scanRodando = true;
-  loopJsQR(video);
-}
-
-// Engine 1: BarcodeDetector (nativo Android/Chrome/Safari iOS 17+)
-async function loopNativo(video) {
-  if (!scanRodando) return;
-  if (bloqueado) { requestAnimationFrame(() => loopNativo(video)); return; }
+  document.getElementById('btn-camera').disabled = true;
 
   try {
-    const codes = await detector.detect(video);
-    if (codes.length > 0) {
-      const val = codes[0].rawValue;
-      if (val && val !== ultimoId) {
-        ultimoId = val;
-        logDebug('QR detectado!');
-        validarIngresso(val);
-      }
+    zxingReader = new ZXing.BrowserQRCodeReader();
+
+    // Pede permissão e lista câmeras
+    const devices = await zxingReader.listVideoInputDevices();
+    if (!devices || devices.length === 0) {
+      alert('Nenhuma câmera encontrada. Verifique as permissões do navegador.');
+      document.getElementById('btn-camera').disabled = false;
+      return;
     }
-  } catch(e) {}
 
-  requestAnimationFrame(() => loopNativo(video));
-}
+    // Prefere câmera traseira; se não achar, usa a última da lista
+    const traseira = devices.find(d =>
+      /back|rear|environment|traseira/i.test(d.label)
+    ) || devices[devices.length - 1];
 
-// Engine 2: jsQR via canvas (fallback)
-function loopJsQR(video) {
-  if (!scanRodando) return;
+    document.getElementById('video-container').style.display = 'block';
+    document.getElementById('btn-camera').style.display = 'none';
+    document.getElementById('btn-parar').style.display = 'flex';
+    logDebug('Aponte a câmera para o QR Code...');
 
-  if (!bloqueado && video.readyState >= 2 && video.videoWidth > 0) {
-    scanCanvas.width  = video.videoWidth;
-    scanCanvas.height = video.videoHeight;
-    scanCtx.drawImage(video, 0, 0);
-
-    try {
-      const imgData = scanCtx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
-      const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });
-      if (code && code.data && code.data !== ultimoId) {
-        ultimoId = code.data;
-        logDebug('QR detectado!');
-        validarIngresso(code.data);
+    await zxingReader.decodeFromVideoDevice(
+      traseira.deviceId,
+      document.getElementById('video'),
+      (result, err) => {
+        if (result && !bloqueado) {
+          const val = result.getText();
+          if (val && val !== ultimoId) {
+            ultimoId = val;
+            logDebug('QR detectado!');
+            validarIngresso(val);
+          }
+        }
       }
-    } catch(e) {}
-  }
+    );
 
-  setTimeout(() => loopJsQR(video), 300);
+  } catch(e) {
+    alert('Erro ao iniciar câmera: ' + e.message + '\n\nVerifique as permissões no navegador.');
+    document.getElementById('btn-camera').disabled = false;
+    document.getElementById('btn-camera').style.display = 'flex';
+    document.getElementById('video-container').style.display = 'none';
+    logDebug('Erro ao iniciar câmera.');
+  }
 }
 
 function pararCamera() {
-  scanRodando = false;
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (zxingReader) {
+    try { zxingReader.reset(); } catch(e) {}
+    zxingReader = null;
+  }
   ultimoId = '';
   bloqueado = false;
   document.getElementById('video-container').style.display = 'none';
   document.getElementById('btn-camera').style.display = 'flex';
+  document.getElementById('btn-camera').disabled = false;
   document.getElementById('btn-parar').style.display = 'none';
   logDebug('');
 }
