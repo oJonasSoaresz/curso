@@ -2,850 +2,264 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ingressos Sarau — QR Code</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Ingressos Sarau</title>
 
-  <!-- Bibliotecas -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
 
   <style>
+    /* Estilos base mantidos do original com ajustes */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #FAF8F5;
-      --surface: #FFFFFF;
-      --surface2: #F2EFE9;
-      --border: #E0DBD3;
-      --text: #1C1815;
-      --muted: #7A726A;
-      --accent: #2D4A3E;
-      --accent-light: #EBF2EE;
-      --danger: #7A1F1F;
-      --danger-light: #FCEAEA;
-      --warn-light: #FDF5E6;
-      --warn: #7A5A10;
+      --bg: #FAF8F5; --surface: #FFFFFF; --text: #1C1815;
+      --muted: #7A726A; --accent: #2D4A3E; --border: #E0DBD3;
       --radius: 12px;
-      --radius-sm: 8px;
     }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 2rem; }
+    header { background: var(--accent); color: #fff; text-align: center; padding: 2rem 1rem; }
+    header h1 { font-family: 'DM Serif Display', serif; }
+    .container { max-width: 500px; margin: 0 auto; padding: 1.5rem 1rem; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding-bottom: 3rem;
-    }
-
-    header {
-      background: var(--accent);
-      color: #fff;
-      text-align: center;
-      padding: 2rem 1rem 1.5rem;
+    /* Estilo do Ingresso para Impressão */
+    .ticket-visual {
       position: relative;
+      width: 100%;
+      max-width: 350px;
+      aspect-ratio: 3/4;
+      margin: 20px auto;
+      border-radius: 16px;
       overflow: hidden;
+      background: #000;
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-
-    header::before {
-      content: '';
+    .ticket-bg {
       position: absolute;
-      top: -40px; left: -40px;
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.05);
-    }
-
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; right: -20px;
-      width: 200px; height: 200px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.04);
-    }
-
-    header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2rem;
-      font-weight: 400;
-      letter-spacing: 0.01em;
-      position: relative;
-    }
-
-    header p {
-      font-size: 0.85rem;
+      top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover;
       opacity: 0.7;
-      margin-top: 4px;
+    }
+    .ticket-content {
       position: relative;
-    }
-
-    .container {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 1.5rem 1rem;
-    }
-
-    /* CONFIG */
-    .config-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: none;
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 8px 14px;
-      font-size: 13px;
-      color: var(--muted);
-      cursor: pointer;
-      margin-bottom: 1.25rem;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .config-toggle:hover { background: var(--surface2); }
-
-    .config-panel {
-      display: none;
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .config-panel.open { display: block; }
-
-    /* TABS */
-    .tabs {
-      display: flex;
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 4px;
-      gap: 4px;
-      margin-bottom: 1.25rem;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 9px 6px;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'DM Sans', sans-serif;
-      border: none;
-      background: none;
-      border-radius: 9px;
-      cursor: pointer;
-      color: var(--muted);
-      transition: all 0.18s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .tab.active {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .tab svg { width: 16px; height: 16px; flex-shrink: 0; }
-
-    /* PANEL */
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    /* CARD */
-    .card {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-    }
-
-    /* FORM */
-    .field { margin-bottom: 1rem; }
-    .field:last-child { margin-bottom: 0; }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 5px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 10px 12px;
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    input:focus { border-color: var(--accent); }
-
-    /* BUTTONS */
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 11px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      font-family: 'DM Sans', sans-serif;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-
-    .btn:active { transform: scale(0.98); }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-primary:hover { opacity: 0.88; }
-
-    .btn-secondary {
-      background: var(--surface2);
-      color: var(--text);
-      border: 0.5px solid var(--border);
-    }
-
-    .btn-secondary:hover { background: var(--border); }
-
-    .btn-sm {
-      width: auto;
-      padding: 7px 14px;
-      font-size: 12px;
-    }
-
-    /* QR RESULTADO */
-    .qr-box {
+      z-index: 2;
+      height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem 1.5rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .qr-box #qr-canvas img,
-    .qr-box #qr-canvas canvas {
-      border-radius: 6px;
-    }
-
-    .ingresso-nome {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.3rem;
-      color: var(--text);
-    }
-
-    .ingresso-evento {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .ingresso-id {
-      font-size: 10px;
-      color: var(--border);
-      font-family: monospace;
-      word-break: break-all;
-    }
-
-    .divider {
-      width: 100%;
-      height: 0.5px;
-      background: var(--border);
-      margin: 8px 0;
-    }
-
-    /* CÂMERA */
-    #video-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: #111;
-      margin-bottom: 1rem;
-    }
-
-    #video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .scan-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
       justify-content: center;
+      padding: 20px;
+      text-align: center;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8));
     }
-
-    .scan-frame {
-      width: 200px;
-      height: 200px;
-      border: 2px solid rgba(255,255,255,0.6);
-      border-radius: 12px;
-      position: relative;
-    }
-
-    .scan-frame::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
+    .qr-container {
       background: #fff;
-      animation: scanline 1.8s linear infinite;
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 15px;
     }
+    .ticket-name { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 5px; }
+    .ticket-event { font-size: 14px; opacity: 0.9; }
 
-    @keyframes scanline {
-      0%   { top: 0%; opacity: 1; }
-      50%  { top: 95%; opacity: 1; }
-      100% { top: 0%; opacity: 0; }
-    }
+    /* UI Elements */
+    .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
+    .tab { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: #eee; }
+    .tab.active { background: var(--accent); color: white; }
+    .card { background: white; padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 15px; }
+    .field { margin-bottom: 15px; }
+    label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--muted); }
+    input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    
+    .status { padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
+    .status-ok { background: #e6fffa; color: #2d4a3e; }
+    .status-err { background: #fff5f5; color: #742a2a; }
 
-    /* STATUS CARDS */
-    .status {
-      border-radius: var(--radius-sm);
-      padding: 1rem 1.25rem;
-      font-size: 14px;
-      font-weight: 500;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .status small {
-      display: block;
-      font-size: 12px;
-      font-weight: 400;
-      margin-top: 4px;
-      opacity: 0.8;
-    }
-
-    .status-ok    { background: var(--accent-light); color: var(--accent); }
-    .status-err   { background: var(--danger-light); color: var(--danger); }
-    .status-warn  { background: var(--warn-light);   color: var(--warn); }
-
-    /* LISTA */
-    .resumo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 1rem;
-    }
-
-    .resumo-card {
-      background: var(--surface2);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      text-align: center;
-    }
-
-    .resumo-card .num {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.6rem;
-      color: var(--text);
-    }
-
-    .resumo-card .leg {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .resumo-card.ok .num  { color: var(--accent); }
-    .resumo-card.ok       { background: var(--accent-light); }
-
-    .list-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 0.5px solid var(--border);
-      gap: 8px;
-    }
-
-    .list-item:last-child { border-bottom: none; }
-
-    .list-item-info { flex: 1; min-width: 0; }
-
-    .list-item-nome {
-      font-size: 13px;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .list-item-sub {
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .badge {
-      font-size: 11px;
-      font-weight: 500;
-      padding: 3px 10px;
-      border-radius: 99px;
-      flex-shrink: 0;
-    }
-
-    .badge-ok  { background: var(--accent-light); color: var(--accent); }
-    .badge-err { background: var(--danger-light); color: var(--danger); }
-
-    /* CONFIG STATUS */
-    .cfg-ok  { font-size: 12px; color: var(--accent); margin-top: 8px; }
-    .cfg-err { font-size: 12px; color: var(--danger); margin-top: 8px; }
-
-    /* PRINT BUTTON */
-    @media print {
-      body { background: #fff; }
-      .no-print { display: none !important; }
-      .qr-box { border: 1px solid #ddd; break-inside: avoid; }
-    }
-
-    /* EMPTY STATE */
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-      padding: 2rem 0;
-    }
+    @media print { .no-print { display: none !important; } .ticket-visual { box-shadow: none; border: 1px solid #ddd; } }
   </style>
 </head>
 <body>
 
-  <header>
+  <header class="no-print">
     <h1>🎭 Ingressos Sarau</h1>
-    <p>Gere e valide ingressos com QR Code único</p>
+    <p>Scanner & Gerador Profissional</p>
   </header>
 
   <div class="container">
-
-    <!-- CONFIGURAÇÃO SUPABASE -->
-    <button class="config-toggle no-print" onclick="toggleConfig()">
-      ⚙️ Configurar Supabase
-    </button>
-
-    <div class="config-panel" id="config-panel">
-      <div class="field">
-        <label>URL do projeto Supabase</label>
-        <input type="text" id="sb-url" placeholder="https://xxxxxxxxxxx.supabase.co" />
-      </div>
-      <div class="field">
-        <label>Anon Key (chave pública)</label>
-        <input type="password" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
-      </div>
-      <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="salvarConfig()">Salvar</button>
-      <p id="config-msg"></p>
-    </div>
-
-    <!-- ABAS -->
+    
     <div class="tabs no-print">
-      <button class="tab active" id="tab-gerar" onclick="trocarAba('gerar')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3m0 4h4m-4-4v4m0 0h-3"/></svg>
-        Gerar
-      </button>
-      <button class="tab" id="tab-ler" onclick="trocarAba('ler')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-        Validar
-      </button>
-      <button class="tab" id="tab-lista" onclick="trocarAba('lista')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
-        Registros
-      </button>
+      <button class="tab active" onclick="trocarAba('gerar')">Gerar</button>
+      <button class="tab" onclick="trocarAba('ler')">Validar</button>
     </div>
 
-    <!-- PAINEL: GERAR -->
-    <div class="panel active" id="panel-gerar">
+    <div id="panel-gerar" class="panel active">
       <div class="card no-print">
         <div class="field">
-          <label>Nome do participante</label>
-          <input type="text" id="nome" placeholder="Ex: Maria da Silva" />
+          <label>Nome do participante *</label>
+          <input type="text" id="nome" placeholder="Maria Silva" oninput="validarForm()">
         </div>
         <div class="field">
-          <label>Nome do evento</label>
-          <input type="text" id="evento" placeholder="Ex: Sarau Cofo de Magia" />
+          <label>Evento *</label>
+          <input type="text" id="evento" placeholder="Sarau Cofo de Magia" oninput="validarForm()">
         </div>
-        <div class="field">
-          <label>Lote / Observação (opcional)</label>
-          <input type="text" id="lote" placeholder="Ex: Lote 1 · Meia entrada" />
-        </div>
-        <button class="btn btn-primary" style="margin-top:4px;" onclick="gerarIngresso()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-          Gerar ingresso
-        </button>
+        <button id="btn-gerar" class="btn btn-primary" onclick="gerarIngresso()" disabled>Gerar Ingresso</button>
       </div>
 
       <div id="qr-resultado"></div>
     </div>
 
-    <!-- PAINEL: LER / VALIDAR -->
-    <div class="panel" id="panel-ler">
+    <div id="panel-ler" class="panel" style="display:none;">
       <div id="scan-resultado"></div>
-
-      <div class="card">
-        <div id="video-container" style="display:none;">
-          <video id="video" playsinline autoplay muted></video>
-          <div class="scan-overlay">
-            <div class="scan-frame"></div>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" id="btn-camera" onclick="iniciarCamera()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Ligar câmera
-        </button>
-
-        <button class="btn btn-secondary" id="btn-parar" style="display:none; margin-top:8px;" onclick="pararCamera()">
-          Desligar câmera
-        </button>
-
-        <p id="scan-debug" style="font-size:12px; color:var(--muted); margin-top:10px; text-align:center; min-height:18px;">
-          Aponte a câmera para o QR Code — a validação é automática.
-        </p>
-      </div>
-
-      <!-- Validação manual por ID -->
-      <div class="card" style="margin-top:0;">
-        <p style="font-size:12px; color:var(--muted); margin-bottom:10px; font-weight:500;">Ou digite o ID manualmente:</p>
-        <div style="display:flex; gap:8px;">
-          <input type="text" id="id-manual" placeholder="UUID do ingresso" style="flex:1;" />
-          <button class="btn btn-secondary btn-sm" onclick="validarManual()">Validar</button>
-        </div>
+      <div class="card no-print">
+        <video id="video" style="width: 100%; border-radius: 8px; display: none;"></video>
+        <button class="btn btn-primary" id="btn-camera" onclick="iniciarCamera()">Ligar Câmera</button>
       </div>
     </div>
 
-    <!-- PAINEL: LISTA -->
-    <div class="panel" id="panel-lista">
-      <div id="resumo-area"></div>
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-          <span style="font-size:14px; font-weight:500;">Ingressos gerados</span>
-          <button class="btn btn-secondary btn-sm" onclick="carregarLista()">↻ Atualizar</button>
-        </div>
-        <div id="lista-conteudo">
-          <p class="empty">Clique em "Atualizar" para carregar os registros.</p>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /container -->
+  </div>
 
 <script>
-// ─── CONFIG ──────────────────────────────────────────────
-let sbUrl = localStorage.getItem('sb_url') || '';
-let sbKey = localStorage.getItem('sb_key') || '';
-
-if (sbUrl) document.getElementById('sb-url').value = sbUrl;
-if (sbKey) document.getElementById('sb-key').value = sbKey;
-
-function toggleConfig() {
-  document.getElementById('config-panel').classList.toggle('open');
+// --- ÁUDIOS ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function tocarSom(frequencia, tipo) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type = tipo;
+  osc.frequency.value = frequencia;
+  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.5);
 }
 
-function salvarConfig() {
-  sbUrl = document.getElementById('sb-url').value.trim().replace(/\/$/, '');
-  sbKey = document.getElementById('sb-key').value.trim();
-  const msg = document.getElementById('config-msg');
-  if (!sbUrl || !sbKey) {
-    msg.textContent = '⚠️ Preencha os dois campos.';
-    msg.className = 'cfg-err';
-    return;
-  }
-  localStorage.setItem('sb_url', sbUrl);
-  localStorage.setItem('sb_key', sbKey);
-  msg.textContent = '✓ Configuração salva!';
-  msg.className = 'cfg-ok';
-  setTimeout(() => document.getElementById('config-panel').classList.remove('open'), 1200);
-}
+const somSucesso = () => tocarSom(880, 'sine'); // Beep agudo
+const somErro = () => tocarSom(220, 'square'); // Alerta grave
 
-// ─── SUPABASE FETCH ──────────────────────────────────────
+// --- CONFIG SUPABASE (Puxando do seu localStorage) ---
+let sbUrl = localStorage.getItem('sb_url');
+let sbKey = localStorage.getItem('sb_key');
+
 async function sbFetch(path, opts = {}) {
-  if (!sbUrl || !sbKey) {
-    alert('Configure o Supabase primeiro — clique em "⚙️ Configurar Supabase".');
-    return null;
-  }
-  try {
-    const res = await fetch(sbUrl + '/rest/v1/' + path, {
-      headers: {
-        'apikey': sbKey,
-        'Authorization': 'Bearer ' + sbKey,
-        'Content-Type': 'application/json',
-        'Prefer': opts.prefer || 'return=representation'
-      },
-      method: opts.method || 'GET',
-      body: opts.body || undefined
-    });
-    return res;
-  } catch (e) {
-    alert('Erro de rede: ' + e.message);
-    return null;
-  }
+  return fetch(sbUrl + '/rest/v1/' + path, {
+    headers: { 'apikey': sbKey, 'Authorization': 'Bearer ' + sbKey, 'Content-Type': 'application/json', 'Prefer': opts.prefer || '' },
+    method: opts.method || 'GET',
+    body: opts.body || undefined
+  });
 }
 
-// ─── ABAS ────────────────────────────────────────────────
+// --- LÓGICA DE INTERFACE ---
 function trocarAba(aba) {
-  ['gerar','ler','lista'].forEach(a => {
-    document.getElementById('tab-' + a).classList.toggle('active', a === aba);
-    document.getElementById('panel-' + a).classList.toggle('active', a === aba);
-  });
-  if (aba !== 'ler') pararCamera();
-  if (aba === 'lista') carregarLista();
+  document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+  document.getElementById('panel-' + aba).style.display = 'block';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  if(aba !== 'ler') pararCamera();
 }
 
-// ─── GERAR INGRESSO ──────────────────────────────────────
+function validarForm() {
+  const n = document.getElementById('nome').value.trim();
+  const e = document.getElementById('evento').value.trim();
+  document.getElementById('btn-gerar').disabled = (n === "" || e === "");
+}
+
 async function gerarIngresso() {
-  const nome  = document.getElementById('nome').value.trim();
-  const evento = document.getElementById('evento').value.trim();
-  const lote  = document.getElementById('lote').value.trim();
+  const nome = document.getElementById('nome').value;
+  const evento = document.getElementById('evento').value;
 
-  if (!nome || !evento) {
-    alert('Preencha ao menos o nome do participante e o nome do evento.');
-    return;
-  }
-
-  const payload = { nome, evento, lote, usado: false, criado_em: new Date().toISOString() };
   const res = await sbFetch('qrcodes', {
-    method: 'POST',
-    prefer: 'return=representation',
-    body: JSON.stringify(payload)
+    method: 'POST', prefer: 'return=representation',
+    body: JSON.stringify({ nome, evento, usado: false, criado_em: new Date().toISOString() })
   });
-  if (!res) return;
 
   const data = await res.json();
-  if (!res.ok) { alert('Erro ao salvar: ' + JSON.stringify(data)); return; }
-
   const id = data[0]?.id;
-  if (!id) { alert('Resposta inesperada do Supabase.'); return; }
 
-  const div = document.getElementById('qr-resultado');
-  div.innerHTML = `
-    <div class="qr-box" id="qr-box-print">
-      <div id="qr-canvas"></div>
-      <div class="divider"></div>
-      <p class="ingresso-nome">${escapar(nome)}</p>
-      <p class="ingresso-evento">${escapar(evento)}${lote ? ' · ' + escapar(lote) : ''}</p>
-      <p class="ingresso-id">${id}</p>
-      <div class="divider"></div>
-      <p style="font-size:11px; color:var(--muted);">Este ingresso é válido para uma única entrada.</p>
-    </div>
-    <div style="display:flex; gap:8px;" class="no-print">
-      <button class="btn btn-secondary" style="flex:1;" onclick="window.print()">🖨️ Imprimir</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="compartilharQR('${id}', '${escaparJs(nome)}', '${escaparJs(evento)}')">📤 Compartilhar</button>
-    </div>
-  `;
+  if (id) {
+    // Limpar campos
+    document.getElementById('nome').value = "";
+    document.getElementById('evento').value = "";
+    validarForm();
 
-  new QRCode(document.getElementById('qr-canvas'), {
-    text: id,
-    width: 200,
-    height: 200,
-    colorDark: '#2D4A3E',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.H
-  });
-}
+    // Renderizar Ingresso Bonito
+    const div = document.getElementById('qr-resultado');
+    div.innerHTML = `
+      <div class="ticket-visual" id="print-area">
+        <img src="image 4.jpg" class="ticket-bg">
+        <div class="ticket-content">
+          <div class="qr-container" id="qr-code-img"></div>
+          <h2 class="ticket-name">${nome}</h2>
+          <p class="ticket-event">${evento}</p>
+          <small style="font-size:8px; opacity:0.5; margin-top:10px;">${id}</small>
+        </div>
+      </div>
+      <button class="btn btn-primary no-print" onclick="window.print()">🖨️ Imprimir Ingresso</button>
+    `;
 
-function escapar(str) { return String(str).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escaparJs(str) { return String(str).replace(/'/g,"\\'"); }
-
-async function compartilharQR(id, nome, evento) {
-  const texto = `Ingresso: ${nome}\nEvento: ${evento}\nID: ${id}`;
-  if (navigator.share) {
-    try { await navigator.share({ title: 'Ingresso ' + evento, text: texto }); } catch(e) {}
-  } else {
-    navigator.clipboard.writeText(texto).then(() => alert('Informações copiadas!'));
+    new QRCode(document.getElementById('qr-code-img'), {
+      text: id, width: 160, height: 160, colorDark: "#000", colorLight: "#fff"
+    });
   }
 }
 
-// ─── CÂMERA / LEITURA (ZXing — funciona em iPhone, Android, qualquer navegador) ───
-let zxingReader = null, ultimoId = '', bloqueado = false;
-
-function logDebug(msg) {
-  const el = document.getElementById('scan-debug');
-  if (el) el.textContent = msg;
-}
-
+// --- CÂMERA E VALIDAÇÃO ---
+let reader = null;
 async function iniciarCamera() {
-  logDebug('Iniciando câmera...');
-  document.getElementById('btn-camera').disabled = true;
+  reader = new ZXing.BrowserQRCodeReader();
+  const video = document.getElementById('video');
+  video.style.display = 'block';
+  document.getElementById('btn-camera').style.display = 'none';
 
-  try {
-    zxingReader = new ZXing.BrowserQRCodeReader();
-
-    // Pede permissão e lista câmeras
-    const devices = await zxingReader.listVideoInputDevices();
-    if (!devices || devices.length === 0) {
-      alert('Nenhuma câmera encontrada. Verifique as permissões do navegador.');
-      document.getElementById('btn-camera').disabled = false;
-      return;
-    }
-
-    // Prefere câmera traseira; se não achar, usa a última da lista
-    const traseira = devices.find(d =>
-      /back|rear|environment|traseira/i.test(d.label)
-    ) || devices[devices.length - 1];
-
-    document.getElementById('video-container').style.display = 'block';
-    document.getElementById('btn-camera').style.display = 'none';
-    document.getElementById('btn-parar').style.display = 'flex';
-    logDebug('Aponte a câmera para o QR Code...');
-
-    await zxingReader.decodeFromVideoDevice(
-      traseira.deviceId,
-      document.getElementById('video'),
-      (result, err) => {
-        if (result && !bloqueado) {
-          const val = result.getText();
-          if (val && val !== ultimoId) {
-            ultimoId = val;
-            logDebug('QR detectado!');
-            validarIngresso(val);
-          }
-        }
-      }
-    );
-
-  } catch(e) {
-    alert('Erro ao iniciar câmera: ' + e.message + '\n\nVerifique as permissões no navegador.');
-    document.getElementById('btn-camera').disabled = false;
-    document.getElementById('btn-camera').style.display = 'flex';
-    document.getElementById('video-container').style.display = 'none';
-    logDebug('Erro ao iniciar câmera.');
-  }
+  reader.decodeFromVideoDevice(undefined, video, (result) => {
+    if (result) validarIngresso(result.getText());
+  });
 }
 
 function pararCamera() {
-  if (zxingReader) {
-    try { zxingReader.reset(); } catch(e) {}
-    zxingReader = null;
-  }
-  ultimoId = '';
-  bloqueado = false;
-  document.getElementById('video-container').style.display = 'none';
-  document.getElementById('btn-camera').style.display = 'flex';
-  document.getElementById('btn-camera').disabled = false;
-  document.getElementById('btn-parar').style.display = 'none';
-  logDebug('');
-}
-
-function validarManual() {
-  const id = document.getElementById('id-manual').value.trim();
-  if (!id) { alert('Digite o ID do ingresso.'); return; }
-  validarIngresso(id);
+  if(reader) reader.reset();
+  document.getElementById('video').style.display = 'none';
+  document.getElementById('btn-camera').style.display = 'block';
 }
 
 async function validarIngresso(id) {
-  bloqueado = true;
-  mostrarStatus('warn', 'Verificando ingresso...', '');
+  // Evitar múltiplas leituras seguidas
+  if(window.validando) return;
+  window.validando = true;
 
-  const res = await sbFetch('qrcodes?id=eq.' + encodeURIComponent(id) + '&select=*');
-  if (!res) { bloqueado = false; return; }
+  const res = await sbFetch(`qrcodes?id=eq.${id}&select=*`);
   const data = await res.json();
-
-  if (!res.ok || !data || !data.length) {
-    mostrarStatus('err', '❌ Ingresso não encontrado.', 'Este QR Code não existe no sistema.');
-    setTimeout(liberar, 4000); return;
-  }
-
   const ing = data[0];
 
-  if (ing.usado) {
-    const dt = ing.usado_em ? new Date(ing.usado_em).toLocaleString('pt-BR') : 'data desconhecida';
-    mostrarStatus('err', '🚫 Ingresso já utilizado', `Entrada registrada em ${dt} · ${ing.nome}`);
-    setTimeout(liberar, 5000); return;
-  }
+  const statusDiv = document.getElementById('scan-resultado');
 
-  // Marcar como usado
-  const upd = await sbFetch('qrcodes?id=eq.' + encodeURIComponent(id), {
-    method: 'PATCH',
-    prefer: 'return=representation',
-    body: JSON.stringify({ usado: true, usado_em: new Date().toISOString() })
-  });
-
-  if (upd && upd.ok) {
-    mostrarStatus('ok',
-      '✅ Entrada liberada!',
-      `${ing.nome} · ${ing.evento}${ing.lote ? ' · ' + ing.lote : ''}`
-    );
+  if (!ing) {
+    somErro();
+    statusDiv.innerHTML = `<div class="status status-err">❌ NÃO ENCONTRADO</div>`;
+  } else if (ing.usado) {
+    somErro();
+    statusDiv.innerHTML = `<div class="status status-err">🚫 JÁ USADO POR ${ing.nome}</div>`;
   } else {
-    mostrarStatus('err', 'Erro ao registrar uso.', 'Tente novamente.');
+    // Marcar como usado
+    await sbFetch(`qrcodes?id=eq.${id}`, {
+      method: 'PATCH', body: JSON.stringify({ usado: true, usado_em: new Date().toISOString() })
+    });
+    somSucesso();
+    statusDiv.innerHTML = `<div class="status status-ok">✅ LIBERADO: ${ing.nome}</div>`;
   }
 
-  setTimeout(liberar, 5000);
-}
-
-function mostrarStatus(tipo, msg, sub) {
-  const div = document.getElementById('scan-resultado');
-  div.innerHTML = `<div class="status status-${tipo}">${msg}${sub ? `<small>${sub}</small>` : ''}</div>`;
-}
-
-function liberar() {
-  bloqueado = false;
-  ultimoId = '';
-  logDebug('Procurando QR Code...');
-}
-
-// ─── LISTA ───────────────────────────────────────────────
-async function carregarLista() {
-  document.getElementById('lista-conteudo').innerHTML = '<p class="empty">Carregando...</p>';
-  const res = await sbFetch('qrcodes?select=*&order=criado_em.desc&limit=100');
-  if (!res) return;
-  const data = await res.json();
-
-  if (!res.ok) { document.getElementById('lista-conteudo').innerHTML = '<p class="empty">Erro ao carregar.</p>'; return; }
-  if (!data || !data.length) { document.getElementById('lista-conteudo').innerHTML = '<p class="empty">Nenhum ingresso gerado ainda.</p>'; document.getElementById('resumo-area').innerHTML = ''; return; }
-
-  const total   = data.length;
-  const usados  = data.filter(d => d.usado).length;
-  const livres  = total - usados;
-
-  document.getElementById('resumo-area').innerHTML = `
-    <div class="resumo-grid">
-      <div class="resumo-card"><div class="num">${total}</div><div class="leg">Total</div></div>
-      <div class="resumo-card ok"><div class="num">${usados}</div><div class="leg">Validados</div></div>
-      <div class="resumo-card"><div class="num">${livres}</div><div class="leg">Pendentes</div></div>
-    </div>
-  `;
-
-  document.getElementById('lista-conteudo').innerHTML = data.map(d => `
-    <div class="list-item">
-      <div class="list-item-info">
-        <div class="list-item-nome">${escapar(d.nome)}</div>
-        <div class="list-item-sub">${escapar(d.evento)}${d.lote ? ' · ' + escapar(d.lote) : ''}</div>
-      </div>
-      <span class="badge ${d.usado ? 'badge-err' : 'badge-ok'}">${d.usado ? 'Usado' : 'Válido'}</span>
-    </div>
-  `).join('');
+  setTimeout(() => { 
+    statusDiv.innerHTML = ""; 
+    window.validando = false; 
+  }, 3000);
 }
 </script>
-
 </body>
 </html>
