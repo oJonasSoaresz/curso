@@ -2,7 +2,7 @@
   "name": "Ingressos Sarau",
   "short_name": "Sarau",
   "start_url": "/curso/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#2D4A3E",
   "theme_color": "#2D4A3E",
   "orientation": "portrait",
