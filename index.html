@@ -586,11 +586,9 @@ async function gerarIngresso() {
   const id = data[0]?.id;
   if (!id) { alert('Resposta inesperada do Supabase.'); return; }
 
-  // Limpar campos
-  document.getElementById('nome').value = '';
-  document.getElementById('evento').value = '';
-  document.getElementById('lote').value = '';
-  document.getElementById('btn-gerar').disabled = true;
+// Limpar campos
+document.getElementById('nome').value = '';
+verificarCampos();
 
   // Montar ingresso com foto de fundo
   const div = document.getElementById('qr-resultado');
