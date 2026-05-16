@@ -525,7 +525,7 @@ function tocarSomRecusado() {
       o.connect(g); g.connect(ctx.destination);
       o.frequency.value = freq;
       o.type = 'sawtooth';
-      g.gain.setValueAtTime(0.25, ctx.currentTime + quando);
+      g.gain.setValueAtTime(0.1, ctx.currentTime + quando);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + quando + dur);
       o.start(ctx.currentTime + quando);
       o.stop(ctx.currentTime + quando + dur + 0.05);
