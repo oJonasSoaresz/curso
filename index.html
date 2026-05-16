@@ -710,7 +710,15 @@ function logDebug(msg) {
 }
 
 async function iniciarCamera() {
+    // Se estiver rodando como PWA no iOS, abre no Safari
+  if (window.navigator.standalone) {
+    if (confirm('A câmera não funciona no app instalado.\nDeseja abrir no Safari?')) {
+      window.open(window.location.href, '_blank');
+    }
+    return;
+  }
   logDebug('Iniciando câmera...');
+  
   document.getElementById('btn-camera').disabled = true;
   try {
     zxingReader = new ZXing.BrowserQRCodeReader();
