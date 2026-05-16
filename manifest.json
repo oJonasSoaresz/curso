@@ -1,0 +1,16 @@
+{
+  "name": "Ingressos Sarau",
+  "short_name": "Sarau",
+  "start_url": "/nome-do-seu-repositorio/",
+  "display": "standalone",
+  "background_color": "#2D4A3E",
+  "theme_color": "#2D4A3E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/icons/svg?seed=teatro",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
