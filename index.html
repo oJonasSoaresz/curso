@@ -776,7 +776,7 @@ async function validarIngresso(id) {
   if (!res.ok || !data || !data.length) {
     tocarSomRecusado();
     mostrarStatus('err', '❌ Ingresso não encontrado.', 'Este QR Code não existe no sistema.');
-    setTimeout(liberar, 4000); return;
+    setTimeout(liberar, 2000); return;
   }
 
   const ing = data[0];
@@ -785,7 +785,7 @@ async function validarIngresso(id) {
     tocarSomRecusado();
     const dt = ing.usado_em ? new Date(ing.usado_em).toLocaleString('pt-BR') : 'data desconhecida';
     mostrarStatus('err', '🚫 Ingresso já utilizado', `Entrada registrada em ${dt} · ${ing.nome}`);
-    setTimeout(liberar, 5000); return;
+    setTimeout(liberar, 2000); return;
   }
 
   const upd = await sbFetch('qrcodes?id=eq.' + encodeURIComponent(id), {
@@ -802,7 +802,7 @@ async function validarIngresso(id) {
     mostrarStatus('err', 'Erro ao registrar uso.', 'Tente novamente.');
   }
 
-  setTimeout(liberar, 5000);
+  setTimeout(liberar, 2000);
 }
 
 function mostrarStatus(tipo, msg, sub) {
