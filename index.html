@@ -1,899 +1,723 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz: Introdução à Programação Web</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Fontes de Alta Legibilidade: Plus Jakarta Sans & JetBrains Mono -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #18181b;
-      background-image: radial-gradient(circle at top, #27272a 0%, #18181b 70%);
-      color: #0f172a;
-      -webkit-font-smoothing: antialiased;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f4f6f1" />
+<title>Comunicação de Dados • Quiz AV1</title>
+<style>
+:root{
+  --bg:#f4f6f1;
+  --paper:#ffffff;
+  --ink:#22342b;
+  --muted:#697971;
+  --line:#dfe7df;
+  --green:#2f7757;
+  --green-2:#e7f2eb;
+  --green-3:#d4e8dc;
+  --red:#b95a55;
+  --red-2:#fff2f1;
+  --gold:#f0c761;
+  --shadow:0 12px 34px rgba(36,55,43,.08);
+  --radius:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+body{
+  overflow:hidden;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  overscroll-behavior:none;
+  user-select:none;
+}
+button{font:inherit;cursor:pointer}
+.screen{
+  position:fixed; inset:0; display:none; overflow:hidden;
+  padding:clamp(10px,2vw,22px);
+}
+.screen.active{display:flex}
+.hidden{display:none !important}
 
-    /* Estilo para tags HTML renderizadas dentro dos textos e alternativas */
-    .html-tag-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.88em;
-      font-weight: 600;
-      padding: 0.12rem 0.45rem;
-      border-radius: 0.375rem;
-      background-color: #eef2ff;
-      color: #3730a3;
-      border: 1px solid #c7d2fe;
-      display: inline-block;
-      line-height: 1.35;
-      vertical-align: baseline;
-    }
+#home{align-items:center;justify-content:center}
+.home-wrap{
+  width:min(100%,1080px);
+  height:min(100%,720px);
+  min-height:0;
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.home-left{
+  padding:clamp(18px,4vw,48px);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:900;color:var(--green);
+  letter-spacing:.3px;margin-bottom:12px;
+}
+.brand .logo{
+  width:38px;height:38px;border-radius:13px;background:var(--green);
+  color:#fff;display:grid;place-items:center;font-size:19px;
+}
+.kicker{
+  text-transform:uppercase;
+  font-size:11px; letter-spacing:1.6px; font-weight:900; color:var(--green);
+}
+h1{
+  margin:10px 0 10px;
+  line-height:.98; letter-spacing:-2px;
+  font-size:clamp(28px,5vw,58px);
+}
+.subtitle{
+  margin:0 0 18px;
+  color:var(--muted);
+  line-height:1.45;
+  max-width:520px;
+  font-size:clamp(14px,1.7vw,18px);
+}
+.home-badges{
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;
+}
+.badge{
+  background:#f0f4f1;
+  color:#50645a;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px; font-weight:800;
+}
+.start-btn{
+  width:max-content;
+  border:0;
+  background:var(--green);
+  color:#fff;
+  border-radius:16px;
+  min-height:54px;
+  padding:0 20px;
+  font-size:16px;
+  font-weight:900;
+  box-shadow:0 7px 0 #255a42;
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.start-btn:hover{filter:brightness(1.02)}
+.start-btn:active{transform:translateY(4px);box-shadow:0 3px 0 #255a42}
+.adapt-block{
+  margin-top:18px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  font-weight:800; font-size:14px;
+}
+.switch{
+  display:inline-flex; gap:4px; background:#edf2ee; border-radius:999px; padding:4px;
+  border:1px solid var(--line);
+}
+.switch button{
+  border:0; min-height:40px; min-width:72px; padding:0 14px;
+  border-radius:999px; background:transparent; color:#62726a; font-weight:900;
+  transition:background .14s ease, transform .12s ease, color .14s ease;
+}
+.switch button.selected{
+  background:var(--green);
+  color:#fff;
+}
+.switch button:active{transform:scale(.98)}
+.home-note{
+  margin-top:12px;font-size:12px;color:var(--muted);
+}
+.home-right{
+  background:var(--green-2);
+  display:grid;place-items:center;
+  position:relative;
+  overflow:hidden;
+}
+.home-right::before,.home-right::after{
+  content:""; position:absolute; border:1px solid #bed6c6; border-radius:50%;
+}
+.home-right::before{width:280px;height:280px}
+.home-right::after{width:180px;height:180px}
+.home-right svg{width:min(84%,360px);height:auto;z-index:1}
 
-    /* Ajuste de contraste da tag quando o botão está verde ou vermelho */
-    .option-correct .html-tag-badge {
-      background-color: #bbf7d0;
-      color: #14532d;
-      border-color: #86efac;
-    }
+#game{align-items:stretch;justify-content:center}
+.game-wrap{
+  overflow:hidden;
+  width:min(100%,1220px);
+  height:100%;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  gap:10px;
+  position:relative;
+}
+.topbar{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:10px;
+  min-height:42px;
+}
+.top-title{
+  font-size:13px;font-weight:900;color:var(--green);white-space:nowrap;
+}
+.progress-group{
+  display:flex;align-items:center;gap:10px;min-width:0;
+}
+.progress-label{
+  white-space:nowrap;font-size:12px;color:var(--muted);font-weight:900;
+}
+.progress{
+  flex:1;height:8px;background:#e5ece6;border-radius:999px;overflow:hidden;
+}
+.progress > span{
+  display:block;height:100%;width:0;background:var(--green);border-radius:999px;
+  transition:width .2s ease;
+}
+.exit-btn{
+  border:1px solid var(--line);background:#fff;color:var(--muted);
+  min-height:40px;padding:0 14px;border-radius:12px;font-size:12px;font-weight:900;
+}
 
-    .option-wrong .html-tag-badge {
-      background-color: #fecaca;
-      color: #7f1d1d;
-      border-color: #fca5a5;
-    }
 
-    /* Animação suave para entrada da explicação e troca de questões */
-    @keyframes slideUpFade {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+.card{
+  min-height:0; min-width:0;
+  display:grid;
+  grid-template-columns:minmax(120px, .78fr) minmax(0,1.55fr);
+  gap:12px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:12px;
+  overflow:hidden;
+}
+.visual-box{
+  min-height:0; min-width:0;
+  border-radius:15px;
+  background:#f1f5f1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:7px;
+  overflow:hidden;
+}
+.visual-box img{
+  display:block;
+  width:100%;
+  height:calc(100% - 18px);
+  min-height:0;
+  object-fit:contain;
+  border-radius:10px;
+  background:#fff;
+}
+.photo-credit{
+  flex:0 0 14px;
+  width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  text-align:center;
+  font-size:9px;
+  color:#75847b;
+}
+.photo-credit a{color:inherit;text-decoration:underline}
+.photo-error{font-size:12px;color:#8b514d;text-align:center;padding:12px}
+.content{
+  min-height:0; min-width:0;
+  display:grid;
+  grid-template-rows:auto minmax(42px,auto) minmax(0,1fr) 96px;
+  gap:7px;
+  align-content:stretch;
+}
+.meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:22px}
+.meta .chip{
+  border-radius:999px;padding:4px 8px;font-size:10px;font-weight:900;
+  border:1px solid var(--line);background:#f7faf7;color:var(--green);
+}
+.question{
+  align-self:center;
+  margin:0;
+  font-weight:850;
+  line-height:1.14;
+  letter-spacing:-.35px;
+  font-size:clamp(16px,2.2vw,25px);
+}
+.options{
+  min-height:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:repeat(2, minmax(76px, auto));
+  gap:8px;
+  align-content:start;
+}
+.option{
+  min-width:0; min-height:76px;
+  display:flex;align-items:center;gap:8px;
+  border-radius:12px;
+  border:1.5px solid var(--line);
+  background:#fff;color:var(--ink);
+  padding:10px 11px;
+  text-align:left;
+  font-size:clamp(11px,1.15vw,14px);
+  font-weight:750;
+  line-height:1.18;
+  transition:transform .12s ease,border-color .14s ease,background .14s ease,box-shadow .14s ease;
+}
+.option:hover:not(:disabled){border-color:#a9c8b2;background:#fbfefc}
+.option:active:not(:disabled){transform:scale(.985)}
+.option:focus-visible,.start-btn:focus-visible,.switch button:focus-visible,.next-btn:focus-visible,.exit-btn:focus-visible{
+  outline:2px solid #9dc7aa;outline-offset:2px;
+}
+.option .letter{
+  flex:0 0 25px;height:25px;border-radius:8px;
+  background:#eef3ef;color:#50645a;display:grid;place-items:center;
+  font-size:11px;font-weight:900;
+}
+.option.correct{border-color:#4f9d70;background:#eef8f1}
+.option.correct .letter{background:#4f9d70;color:#fff}
+.option.wrong{border-color:#d88983;background:#fff3f1}
+.option.wrong .letter{background:#c35e58;color:#fff}
+.option.dim{opacity:.58}
+.option:disabled{cursor:default}
+.popup{
+  position:relative;
+  width:100%;
+  height:96px;min-height:96px;max-height:96px;
+  overflow:hidden;
+  border:1.5px solid transparent;
+  border-radius:13px;
+  padding:8px 10px;
+  visibility:hidden;
+  pointer-events:none;
+  box-shadow:none;
+  background:#f3f6f3;
+  transition:background .16s ease,border-color .16s ease;
+}
+.popup.show{visibility:visible;pointer-events:auto}
+.popup.correct{background:#e8f5ec;border-color:#a8d3b5}
+.popup.wrong{background:#fff0ef;border-color:#e5b2ae}
+.popup-head{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.popup-icon{
+  width:21px;height:21px;border-radius:7px;display:grid;place-items:center;
+  font-size:12px;font-weight:950;flex:0 0 21px;
+}
+.popup.correct .popup-icon{background:#cce8d4;color:#286d49}
+.popup.wrong .popup-icon{background:#f6d7d4;color:#a5443f}
+.popup-title{font-size:12px;font-weight:950}
+.popup-text{font-size:11px;line-height:1.2;color:#35483d;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.popup .mini{margin-top:3px;font-size:9px;color:#718078;font-weight:800}
+.bottombar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  min-height:38px;
+}
+.status{font-size:11px;font-weight:800;color:var(--muted)}
+.next-btn{
+  border:0;background:var(--green);color:#fff;
+  min-height:38px;min-width:104px;padding:0 14px;border-radius:11px;
+  font-weight:850;font-size:13px;
+  transition:transform .12s ease,filter .12s ease,opacity .12s ease;
+}
+.next-btn:active{transform:scale(.98)}
+.next-btn:disabled{opacity:.38}
+.exit-btn{min-height:34px;padding:0 11px;border-radius:10px;font-size:11px}
+@media (orientation:portrait) and (max-width:920px){
+  body.playing #game{display:none!important}
+  body.playing #rotate{display:flex!important}
+}
+@media (max-width:760px) and (orientation:landscape){
+  .screen{padding:7px}
+  .game-wrap{gap:7px}
+  .topbar{min-height:32px;gap:7px}
+  .top-title{font-size:11px}
+  .progress-label{font-size:10px}
+  .exit-btn{min-height:30px}
+  .card{grid-template-columns:minmax(100px,.7fr) minmax(0,1.65fr);gap:8px;padding:8px;border-radius:16px}
+  .visual-box{padding:5px;border-radius:12px}
+  .content{grid-template-rows:auto minmax(36px,auto) minmax(0,1fr) 82px;gap:5px}
+  .meta .chip{font-size:9px;padding:3px 7px}
+  .question{font-size:clamp(14px,2.7vw,20px);line-height:1.12}
+  .options{gap:6px}
+  .option{min-height:62px;padding:7px 8px;gap:6px;font-size:clamp(10px,1.65vw,12px);border-radius:10px}
+  .option .letter{flex-basis:22px;height:22px;border-radius:7px;font-size:10px}
+  .options{grid-template-rows:repeat(2,minmax(62px,auto));align-content:start;gap:6px}
+  .popup{height:82px;min-height:82px;max-height:82px;padding:6px 8px;border-radius:10px;overflow:hidden}
+  .popup-text{font-size:10px;line-height:1.16;-webkit-line-clamp:3}
+  .popup .mini{font-size:8px;margin-top:2px}
+  .bottombar{min-height:34px}
+  .next-btn{min-height:34px;min-width:94px;font-size:12px}
+}
+@media (max-height:340px) and (orientation:landscape){
+  .screen{padding:5px}
+  .game-wrap{gap:5px}
+  .card{padding:6px;gap:6px}
+  .content{grid-template-rows:auto minmax(30px,auto) minmax(0,1fr) 72px;gap:4px}
+  .option{min-height:54px;padding:4px 6px;font-size:10px}
+  .options{grid-template-rows:repeat(2,minmax(54px,auto));align-content:start}
+  .option .letter{flex-basis:20px;height:20px}
+  .popup{height:72px;min-height:72px;max-height:72px;padding:5px 7px;overflow:hidden}
+  .popup-text{font-size:9px;-webkit-line-clamp:3}
+}
+body.adapted .question{font-size:clamp(17px,2.6vw,27px)}
+body.adapted .option{font-size:clamp(12px,1.3vw,15px)}
+body.adapted .options{grid-template-columns:1fr 1fr}
+@keyframes popIn{
+  from{transform:scale(.96);opacity:.0}
+  to{transform:scale(1);opacity:1}
+}
+.pulse{animation:popIn .18s ease}
 
-    .animate-panel {
-      animation: slideUpFade 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    /* Barra de rolagem discreta */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #52525b;
-      border-radius: 9999px;
-    }
-  </style>
+@media (orientation:portrait) and (max-width:920px){
+  body.playing #game{display:none !important}
+  body.playing #rotate{display:flex !important}
+}
+@media (max-width:800px){
+  .home-wrap{grid-template-columns:1fr}
+  .home-right{display:none}
+}
+@media (max-width:760px) and (orientation:landscape){
+  .screen{padding:8px}
+  .home-wrap{height:100%;border-radius:22px}
+  .home-left{padding:16px 18px}
+  h1{font-size:32px}
+  .subtitle{font-size:13px;margin-bottom:12px}
+  .start-btn{min-height:48px}
+  .adapt-block{margin-top:12px}
+  .topbar{gap:8px}
+  .card{
+    grid-template-columns:minmax(118px,.60fr) 1.55fr;
+    gap:10px;
+    padding:10px;
+  }
+  .visual-box svg{max-height:210px}
+  .question{font-size:20px;margin-bottom:10px}
+  .options{gap:8px}
+  .option{min-height:44px;padding:8px;font-size:12px}
+  .option .letter{width:26px;height:26px;flex-basis:26px}
+  .content{grid-template-rows:auto auto minmax(0,1fr) 68px;gap:5px}
+  .popup{height:68px;min-height:68px;max-height:68px;padding:7px 9px}
+  .popup-text{font-size:11px;line-height:1.22}
+  .popup .mini{font-size:9px;margin-top:2px}
+  .next-btn{min-height:42px;min-width:116px}
+}
+@media (max-width:470px) and (orientation:landscape){
+  .top-title{font-size:12px}
+  .progress-label{font-size:11px}
+  .card{grid-template-columns:minmax(100px,.54fr) 1.62fr}
+  .visual-box svg{max-height:180px}
+  .question{font-size:18px}
+  .option{min-height:40px;font-size:11px;padding:7px}
+  .content{grid-template-rows:auto auto minmax(0,1fr) 62px;gap:4px}
+  .popup{height:62px;min-height:62px;max-height:62px;padding:6px 8px}
+  .popup-text{font-size:10px;line-height:1.18}
+}
+</style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none">
+<body>
 
-  <!-- Barra Superior Compacta -->
-  <header class="w-full max-w-[1180px] mx-auto flex flex-wrap items-center justify-between gap-3 pb-4">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-md shadow-indigo-950/50">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-        </svg>
+<section id="home" class="screen active">
+  <div class="home-wrap">
+    <div class="home-left">
+      <div class="brand"><span class="logo">↔</span> QUIZ DE REVISÃO</div>
+      <div class="kicker">Avaliação AV1</div>
+      <h1>Comunicação<br>de Dados</h1>
+      <p class="subtitle">Perguntas e respostas para a prova de AV1. Jogue no seu ritmo, com visual pensado para celular, botões grandes para toque e explicações ao final de cada questão.</p>
+      <div class="home-badges">
+        <span class="badge">30 questões</span>
+        <span class="badge">Sem tempo</span>
+        <span class="badge">Sem penalidades</span>
+        <span class="badge">Mobile horizontal</span>
       </div>
-      <div>
-        <h1 class="text-base sm:text-lg font-bold text-zinc-100 leading-tight">Quiz: Introdução à Programação Web</h1>
-        <p class="text-xs text-zinc-400 font-medium">HTML, CSS, JavaScript &amp; Conceitos da Web</p>
+      <button class="start-btn" id="startBtn">Iniciar quiz →</button>
+      <div class="adapt-block">
+        <span>Adaptado:</span>
+        <div class="switch" role="group" aria-label="Modo adaptado">
+          <button id="adaptNo" class="selected" aria-pressed="true">Não</button>
+          <button id="adaptYes" aria-pressed="false">Sim</button>
+        </div>
       </div>
+      <div class="home-note">O modo adaptado simplifica os enunciados e reduz as alternativas para facilitar o estudo.<br>Fotos: Wikimedia Commons, com créditos e licenças junto às imagens.</div>
+    </div>
+    <div class="home-right" aria-hidden="true">
+      <svg viewBox="0 0 360 260" xmlns="http://www.w3.org/2000/svg">
+        <path d="M65 128h230" stroke="#a8c3b1" stroke-width="5" stroke-dasharray="10 10" stroke-linecap="round"/>
+        <path d="M278 116l16 12-16 12" fill="none" stroke="#2f7757" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="24" y="68" width="100" height="100" rx="22" fill="#fff" stroke="#9ebaa7" stroke-width="3"/>
+        <rect x="50" y="96" width="48" height="32" rx="5" fill="#d7e9de"/>
+        <path d="M61 143h26M74 130v13" stroke="#2f7757" stroke-width="4" stroke-linecap="round"/>
+        <rect x="236" y="68" width="100" height="100" rx="22" fill="#fff" stroke="#9ebaa7" stroke-width="3"/>
+        <rect x="260" y="95" width="52" height="35" rx="5" fill="#d7e9de"/>
+        <path d="M269 108h34M269 117h24" stroke="#2f7757" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="180" cy="128" r="38" fill="#2f7757"/>
+        <path d="M165 128h29m-10-10 10 10-10 10" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M101 37l9 9m-9 0 9-9M246 214l10 10m-10 0 10-10" stroke="#87a592" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="78" cy="209" r="8" fill="#f0c761"/>
+        <circle cx="287" cy="43" r="10" fill="#f0c761"/>
+        <text x="180" y="237" text-anchor="middle" font-size="13" font-weight="800" fill="#4f685b">PERGUNTAS • RESPOSTAS • REVISÃO</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <div class="game-wrap">
+    <div class="topbar">
+      <div class="top-title">↔ Comunicação de Dados</div>
+      <div class="progress-group">
+        <span class="progress-label" id="progressLabel">1 / 30</span>
+        <div class="progress"><span id="progressBar"></span></div>
+      </div>
+      <button class="exit-btn" id="exitBtn">Sair ✕</button>
     </div>
 
-    <!-- Indicador de Pontuação Global -->
-    <div class="flex items-center gap-2.5 bg-zinc-800/90 border border-zinc-700 px-4 py-2 rounded-full shadow-md">
-      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-      <span class="text-xs sm:text-sm font-semibold text-zinc-300">
-        Acertos: <strong id="score-counter" class="text-white font-extrabold">0</strong> de <span id="total-counter" class="font-bold text-zinc-200">20</span>
-      </span>
+    <div class="card">
+      <div class="visual-box" id="visualBox"></div>
+
+      <div class="content">
+        <div class="meta">
+          <span class="chip" id="chipIndex">Questão 01</span>
+          <span class="chip" id="chipCat">Categoria</span>
+        </div>
+        <h2 class="question" id="questionText"></h2>
+        <div class="options" id="optionsBox"></div>
+        <div class="popup" id="feedbackPopup" aria-live="polite">
+          <div class="popup-head">
+            <div class="popup-icon" id="popupIcon">✓</div>
+            <div class="popup-title" id="popupTitle">Resposta</div>
+          </div>
+          <div class="popup-text" id="popupText"></div>
+          <div class="mini" id="popupMini">Toque em continuar para avançar.</div>
+        </div>
+      </div>
+
     </div>
-  </header>
 
-  <!-- Container Principal Horizontal -->
-  <main class="w-full max-w-[1180px] mx-auto my-auto">
-
-    <!-- Tela do Quiz Ativo -->
-    <section id="quiz-container" class="bg-white border border-zinc-700/80 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden">
-      
-      <!-- Barra de Progresso Contínua -->
-      <div class="w-full h-2 bg-slate-200">
-        <div id="progress-bar" class="h-full bg-indigo-600 transition-all duration-500 ease-out" style="width: 5%"></div>
-      </div>
-
-      <!-- Layout Horizontal em Duas Colunas (44% Esquerda / 56% Direita em Desktop) -->
-      <div class="flex flex-col lg:flex-row min-h-[540px]">
-
-        <!-- COLUNA ESQUERDA (44%): Contexto, Pergunta e Explicação -->
-        <div class="w-full lg:w-[44%] bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-200 p-6 sm:p-8 lg:p-9 flex flex-col justify-between gap-6">
-          
-          <div class="space-y-5">
-            <!-- Metadados: Número da Questão e Categoria -->
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span id="question-number" class="inline-flex items-center px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold tracking-wide uppercase">
-                Questão 01 de 20
-              </span>
-              <span id="question-category" class="inline-flex items-center px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200 text-xs font-bold">
-                HTML, CSS e JavaScript
-              </span>
-            </div>
-
-            <!-- Enunciado da Pergunta com Alto Contraste -->
-            <div class="space-y-3 pt-1">
-              <h2 id="question-text" class="text-xl sm:text-[1.4rem] font-bold text-slate-900 leading-[1.5]">
-                Carregando pergunta...
-              </h2>
-              <p id="status-prompt" class="text-sm font-medium text-slate-500 flex items-center gap-2">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                <span>Leia com atenção e selecione a alternativa correta ao lado.</span>
-              </p>
-            </div>
-          </div>
-
-          <!-- Caixa de Explicação Pedagógica (Aparece ao responder) -->
-          <div id="explanation-box" class="hidden animate-panel rounded-xl p-5 border-2 shadow-xs space-y-2">
-            <div class="flex items-center gap-2.5">
-              <div id="explanation-icon" class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0">
-                <!-- Ícone injetado via JS -->
-              </div>
-              <h3 id="explanation-title" class="text-sm font-extrabold uppercase tracking-wide">
-                Por que esta é a resposta correta?
-              </h3>
-            </div>
-            <p id="explanation-text" class="text-[15px] text-slate-800 leading-relaxed font-medium">
-              <!-- Texto da explicação injetado via JS -->
-            </p>
-          </div>
-
-        </div>
-
-        <!-- COLUNA DIREITA (56%): Alternativas e Navegação -->
-        <div class="w-full lg:w-[56%] bg-white p-6 sm:p-8 lg:p-9 flex flex-col justify-between gap-6">
-          
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Escolha uma alternativa:
-              </span>
-              <span class="hidden sm:inline-block text-xs text-slate-400 font-medium">
-                Atalhos: teclas <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-slate-600 font-mono">A–E</kbd> ou <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-slate-600 font-mono">1–5</kbd>
-              </span>
-            </div>
-
-            <!-- Lista de Botões das Alternativas -->
-            <div id="options-list" class="space-y-3" role="radiogroup" aria-label="Alternativas da questão">
-              <!-- Alternativas geradas dinamicamente via JS -->
-            </div>
-          </div>
-
-          <!-- Rodapé da Coluna Direita: Dica e Botão Avançar -->
-          <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div id="feedback-status-bar" class="text-sm font-semibold text-slate-500 flex items-center gap-2">
-              <span>Aguardando sua resposta...</span>
-            </div>
-
-            <button
-              id="next-btn"
-              type="button"
-              disabled
-              class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold transition-all duration-200 bg-slate-200 text-slate-400 cursor-not-allowed"
-            >
-              <span id="next-btn-label">Próxima Questão</span>
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </button>
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Tela Final de Resultados -->
-    <section id="result-container" class="hidden animate-panel bg-white border border-zinc-700/80 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-12">
-        
-        <!-- Esquerda: Resumo da Pontuação e Selo -->
-        <div class="lg:col-span-5 bg-slate-900 text-white p-8 sm:p-10 flex flex-col justify-between gap-6">
-          <div class="space-y-3">
-            <span id="result-badge" class="inline-block px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-              Resultado Final
-            </span>
-            <h2 id="result-title" class="text-2xl sm:text-3xl font-extrabold leading-tight">
-              Parabéns pelo esforço!
-            </h2>
-            <p id="result-message" class="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Confira abaixo seu desempenho detalhado em cada módulo da disciplina.
-            </p>
-          </div>
-
-          <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex items-center justify-between">
-            <div>
-              <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Pontuação Total</span>
-              <div class="text-4xl sm:text-5xl font-extrabold text-white mt-1">
-                <span id="final-score">0</span><span class="text-2xl text-slate-400 font-semibold">/20</span>
-              </div>
-            </div>
-            <div class="text-right">
-              <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Aproveitamento</span>
-              <span id="final-percentage" class="inline-block mt-1 text-2xl sm:text-3xl font-extrabold text-emerald-400">
-                0%
-              </span>
-            </div>
-          </div>
-
-          <button
-            id="restart-btn"
-            type="button"
-            class="w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl text-base font-bold bg-indigo-600 text-white hover:bg-indigo-500 active:scale-[0.99] transition-all cursor-pointer shadow-lg shadow-indigo-950/50"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
-            <span>Jogar Novamente</span>
-          </button>
-        </div>
-
-        <!-- Direita: Desempenho por Categoria -->
-        <div class="lg:col-span-7 p-8 sm:p-10 bg-white flex flex-col justify-center space-y-6">
-          <div>
-            <h3 class="text-lg font-extrabold text-slate-900">Desempenho por Tópico</h3>
-            <p class="text-sm text-slate-500 mt-0.5">Veja quais assuntos você já domina e onde pode revisar:</p>
-          </div>
-
-          <div id="category-breakdown" class="space-y-4">
-            <!-- Barras de progresso por categoria inseridas via JS -->
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Rodapé Discreto -->
-  <footer class="w-full max-w-[1180px] mx-auto pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-400 gap-2">
-    <span>Banco de Questões — Introdução à Programação Web</span>
-    <span>Dica: Pressione <strong class="text-zinc-200">Enter</strong> após responder para avançar</span>
-  </footer>
-
-  <!-- Script Completo do Jogo -->
-  <script>
-    /**
-     * Banco completo de 20 questões com categorias, enunciados,
-     * alternativas, índice da resposta correta e explicações pedagógicas.
-     */
-    const QUESTIONS = [
-      {
-        category: "HTML, CSS e JavaScript",
-        question: "Qual alternativa apresenta corretamente a função de cada tecnologia utilizada no desenvolvimento de páginas web?",
-        options: [
-          "HTML define cores, CSS executa cálculos e JavaScript organiza textos.",
-          "HTML estrutura o conteúdo, CSS define a aparência e JavaScript adiciona interatividade.",
-          "HTML cria imagens, CSS conecta servidores e JavaScript armazena arquivos.",
-          "HTML controla a internet, CSS cria programas e JavaScript organiza tabelas.",
-          "HTML executa comandos, CSS armazena informações e JavaScript define os títulos."
-        ],
-        correctIndex: 1,
-        explanation: "A alternativa B está correta. No desenvolvimento web, cada tecnologia tem um papel claro: o HTML cria a estrutura e o conteúdo, o CSS cuida do visual e das cores, e o JavaScript programa a interatividade."
-      },
-      {
-        category: "HTML, CSS e JavaScript",
-        question: "Ao clicar em um botão de um site, uma mensagem aparece automaticamente na tela. Qual tecnologia permite programar esse tipo de comportamento?",
-        options: [
-          "HTML, responsável por organizar os elementos da página.",
-          "CSS, responsável por definir as cores e os estilos dos elementos.",
-          "JavaScript, responsável por adicionar ações e interatividade à página.",
-          "Internet, responsável por transmitir informações entre computadores.",
-          "Navegador, responsável por criar automaticamente os códigos dos botões."
-        ],
-        correctIndex: 2,
-        explanation: "A alternativa C está correta. O JavaScript é a linguagem de programação que detecta eventos (como o clique em um botão) e executa ações dinâmicas na tela."
-      },
-      {
-        category: "HTML, CSS e JavaScript",
-        question: "Um desenvolvedor deseja alterar a cor de fundo, o tamanho das letras e o espaçamento dos elementos de um site. Qual tecnologia deve utilizar?",
-        options: [
-          "HTML, para organizar os conteúdos da página.",
-          "JavaScript, para executar cálculos matemáticos.",
-          "SQL, para consultar informações armazenadas.",
-          "CSS, para controlar a aparência e a organização visual da página.",
-          "HTTP, para conectar os elementos visuais à internet."
-        ],
-        correctIndex: 3,
-        explanation: "A alternativa D está correta. O CSS (Folhas de Estilo em Cascata) é a tecnologia responsável por definir cores, tipografia, tamanhos e espaçamentos visuais."
-      },
-      {
-        category: "HTML, CSS e JavaScript",
-        question: "Em um projeto web, cada tecnologia possui uma responsabilidade específica. Qual alternativa apresenta corretamente essa divisão?",
-        options: [
-          "HTML cria interações, CSS estrutura textos e JavaScript define as cores.",
-          "HTML estrutura a página, CSS controla o visual e JavaScript programa comportamentos.",
-          "HTML armazena imagens, CSS executa comandos e JavaScript conecta computadores.",
-          "HTML define fontes, CSS organiza bancos de dados e JavaScript cria parágrafos.",
-          "HTML controla servidores, CSS transmite dados e JavaScript organiza arquivos."
-        ],
-        correctIndex: 1,
-        explanation: "A alternativa B está correta. A tríade da web funciona de forma complementar: HTML para estrutura, CSS para estilização visual e JavaScript para comportamento e lógica."
-      },
-      {
-        category: "HTML, CSS e JavaScript",
-        question: "Um desenvolvedor precisa alinhar colunas, modificar espaçamentos e alterar a cor de fundo de uma página. Qual tecnologia é mais adequada para realizar essas alterações?",
-        options: [
-          "HTML, responsável por criar a estrutura dos textos.",
-          "JavaScript, responsável por executar ações e cálculos.",
-          "SQL, responsável por consultar informações no banco de dados.",
-          "CSS, responsável por controlar o layout e a aparência visual.",
-          "HTTP, responsável por transferir arquivos pela internet."
-        ],
-        correctIndex: 3,
-        explanation: "A alternativa D está correta. O posicionamento de colunas, margens, espaçamentos e cores de fundo são recursos controlados diretamente pelo CSS."
-      },
-      {
-        category: "Tags HTML",
-        question: "As tags de título HTML são representadas de h1 até h6. Qual alternativa apresenta a afirmação correta?",
-        options: [
-          "h6 representa o título principal, enquanto h1 representa o menor título.",
-          "Todas as tags possuem exatamente a mesma importância e função.",
-          "h1 representa o título de maior importância, enquanto h6 representa o de menor hierarquia.",
-          "h1 até h6 são utilizadas exclusivamente para inserir imagens.",
-          "h1 cria parágrafos, enquanto h6 cria botões."
-        ],
-        correctIndex: 2,
-        explanation: "A alternativa C está correta. Na hierarquia semântica do HTML, <h1> indica o título principal e mais relevante da página, diminuindo gradualmente até o <h6>."
-      },
-      {
-        category: "Tags HTML",
-        question: "Qual tag HTML é utilizada para criar parágrafos e organizar textos em uma página web?",
-        options: [
-          "<img>, utilizada para inserir imagens.",
-          "<button>, utilizada para criar botões.",
-          "<h1>, utilizada para criar títulos.",
-          "<p>, utilizada para organizar parágrafos.",
-          "<link>, utilizada para inserir vídeos."
-        ],
-        correctIndex: 3,
-        explanation: "A alternativa D está correta. A tag <p> (abreviação de paragraph) delimita e organiza blocos de parágrafos de texto em um documento HTML."
-      },
-      {
-        category: "Tags HTML",
-        question: "Um programador deseja inserir uma fotografia em uma página web. Qual tag HTML deve utilizar?",
-        options: [
-          "<text>, utilizada para organizar textos.",
-          "<button>, utilizada para criar botões.",
-          "<img>, utilizada para inserir imagens.",
-          "<h2>, utilizada para criar títulos.",
-          "<br>, utilizada para separar parágrafos."
-        ],
-        correctIndex: 2,
-        explanation: "A alternativa C está correta. A tag <img> (de image) é utilizada para exibir fotografias e ilustrações na página web."
-      },
-      {
-        category: "Tags HTML",
-        question: "Em uma loja virtual, existe um elemento chamado \"Finalizar compra\", que permite ao usuário clicar para realizar uma ação. Qual tag HTML pode ser utilizada para criar esse botão?",
-        options: [
-          "<img>, utilizada para apresentar imagens.",
-          "<p>, utilizada para organizar parágrafos.",
-          "<button>, utilizada para criar botões interativos.",
-          "<h1>, utilizada para criar títulos principais.",
-          "<br>, utilizada para separar linhas de texto."
-        ],
-        correctIndex: 2,
-        explanation: "A alternativa C está correta. A tag <button> cria um elemento clicável na interface para que o usuário dispare ações como enviar pedidos ou confirmar formulários."
-      },
-      {
-        category: "Tags HTML",
-        question: "Um desenvolvedor está criando uma página de notícias e precisa inserir um título principal, seguido de um texto explicativo. Quais tags HTML podem ser utilizadas, respectivamente?",
-        options: [
-          "<img> e <button>.",
-          "<h1> e <p>.",
-          "<p> e <img>.",
-          "<button> e <h6>.",
-          "<br> e <link>."
-        ],
-        correctIndex: 1,
-        explanation: "A alternativa B está correta. Utiliza-se <h1> para destacar a manchete (título principal) e <p> logo em seguida para estruturar o texto da notícia."
-      },
-      {
-        category: "Navegadores e páginas web",
-        question: "Qual é a principal função de navegadores como Google Chrome, Mozilla Firefox e Microsoft Edge?",
-        options: [
-          "Criar automaticamente os códigos de todos os sites.",
-          "Armazenar permanentemente todos os arquivos da internet.",
-          "Substituir o sistema operacional do computador.",
-          "Interpretar os códigos das páginas web e apresentar seu conteúdo ao usuário.",
-          "Criar conexões físicas entre computadores."
-        ],
-        correctIndex: 3,
-        explanation: "A alternativa D está correta. Os navegadores leem e interpretam os códigos HTML, CSS e JavaScript enviados pelos servidores e os transformam na página visual que você vê na tela."
-      },
-      {
-        category: "Navegadores e páginas web",
-        question: "Como podemos definir uma página web?",
-        options: [
-          "Um equipamento utilizado para distribuir o sinal de internet.",
-          "Um documento digital acessado pelo navegador, que pode conter textos, imagens e links.",
-          "Um programa utilizado exclusivamente para realizar cálculos.",
-          "Um sistema operacional responsável pelo funcionamento do computador.",
-          "Um dispositivo físico utilizado para armazenar arquivos de rede."
-        ],
-        correctIndex: 1,
-        explanation: "A alternativa B está correta. Uma página web é um documento digital estruturado (geralmente em HTML) exibido em um navegador, reunindo textos, mídias e hiperlinks."
-      },
-      {
-        category: "Navegadores e páginas web",
-        question: "Quando acessamos um site pelo navegador, podemos visualizar textos, imagens, vídeos e links. Esses elementos fazem parte de:",
-        options: [
-          "Uma página web.",
-          "Um sistema operacional.",
-          "Um equipamento de rede.",
-          "Um banco de dados físico.",
-          "Um programa de manutenção de computadores."
-        ],
-        correctIndex: 0,
-        explanation: "A alternativa A está correta. Textos, imagens, vídeos e links são os elementos que compõem o conteúdo de uma página web."
-      },
-      {
-        category: "Navegadores e páginas web",
-        question: "Qual alternativa apresenta corretamente a diferença entre Internet e Web?",
-        options: [
-          "Internet é um navegador, enquanto Web é um sistema operacional.",
-          "Internet e Web são exatamente a mesma tecnologia.",
-          "Internet é um conjunto de páginas, enquanto Web é um computador.",
-          "Internet é a infraestrutura de redes interconectadas, enquanto Web é um serviço que funciona sobre ela.",
-          "Internet é utilizada somente para jogos, enquanto Web serve apenas para pesquisas."
-        ],
-        correctIndex: 3,
-        explanation: "A alternativa D está correta. A Internet é a rede física e lógica mundial que conecta computadores; já a Web (World Wide Web) é o sistema de sites e documentos que trafega sobre essa rede."
-      },
-      {
-        category: "Navegadores e páginas web",
-        question: "Para acessar uma página de notícias, assistir a vídeos ou consultar informações em um site, normalmente utilizamos:",
-        options: [
-          "Um editor de imagens.",
-          "Um programa de planilhas.",
-          "Um navegador de internet.",
-          "Um sistema de manutenção de hardware.",
-          "Um aplicativo de programação de computadores."
-        ],
-        correctIndex: 2,
-        explanation: "A alternativa C está correta. O navegador de internet (browser) é o aplicativo criado especificamente para acessar e navegar por páginas na Web."
-      },
-      {
-        category: "Aplicações e conceitos de programação web",
-        question: "Um formulário de cadastro apresenta um botão chamado \"Enviar\". Quando o usuário clica nesse botão, uma mensagem de confirmação aparece na tela. Qual recurso permite programar essa resposta?",
-        options: [
-          "CSS, responsável por alterar o tamanho das letras.",
-          "HTML, responsável por organizar os campos do formulário.",
-          "JavaScript, responsável por programar ações e respostas aos eventos.",
-          "Monitor, responsável por executar os comandos do formulário.",
-          "Roteador, responsável por interpretar os cliques do usuário."
-        ],
-        correctIndex: 2,
-        explanation: "A alternativa C está correta. O JavaScript permite escutar o evento de clique no botão \"Enviar\" e exibir dinamicamente uma mensagem de confirmação."
-      },
-      {
-        category: "Aplicações e conceitos de programação web",
-        question: "Durante a construção de um site, um estudante precisa organizar o conteúdo utilizando títulos e parágrafos. Qual alternativa apresenta duas tags adequadas para essas funções?",
-        options: [
-          "<img> e <button>.",
-          "<h1> e <p>.",
-          "<br> e <img>.",
-          "<button> e <link>.",
-          "<p> e <src>."
-        ],
-        correctIndex: 1,
-        explanation: "A alternativa B está correta. A tag <h1> define o título principal da seção e a tag <p> define os parágrafos de texto."
-      },
-      {
-        category: "Aplicações e conceitos de programação web",
-        question: "Uma página web apresenta textos e imagens, mas o desenvolvedor deseja modificar a aparência dos elementos, deixando os títulos maiores e alterando as cores do site. Qual tecnologia deverá utilizar?",
-        options: [
-          "HTML, para executar funções matemáticas.",
-          "JavaScript, para armazenar os arquivos da página.",
-          "CSS, para modificar a aparência dos elementos.",
-          "Internet, para organizar os títulos.",
-          "Navegador, para criar automaticamente as cores."
-        ],
-        correctIndex: 2,
-        explanation: "A alternativa C está correta. Alterar tamanho de fonte, cores e aparência visual dos elementos HTML é exatamente a função do CSS."
-      },
-      {
-        category: "Aplicações e conceitos de programação web",
-        question: "Durante uma aula de Introdução à Programação Web, um estudante afirmou que HTML e CSS possuem a mesma função. Qual alternativa apresenta a explicação correta?",
-        options: [
-          "HTML e CSS são utilizados exclusivamente para criar animações.",
-          "HTML estrutura o conteúdo da página, enquanto CSS define sua aparência visual.",
-          "HTML executa cálculos, enquanto CSS armazena informações.",
-          "HTML conecta computadores, enquanto CSS transmite dados pela internet.",
-          "HTML cria bancos de dados, enquanto CSS controla os servidores."
-        ],
-        correctIndex: 1,
-        explanation: "A alternativa B está correta. HTML e CSS têm papéis diferentes: o HTML organiza a estrutura e o significado do conteúdo, enquanto o CSS aplica o estilo visual."
-      },
-      {
-        category: "Aplicações e conceitos de programação web",
-        question: "Ao desenvolver uma página web, um programador utiliza HTML para organizar o conteúdo, CSS para definir a aparência e JavaScript para permitir que os elementos respondam às ações do usuário. Sobre essas tecnologias, é correto afirmar que:",
-        options: [
-          "Todas possuem exatamente a mesma função no desenvolvimento web.",
-          "JavaScript é utilizado exclusivamente para definir cores e fontes.",
-          "CSS é responsável por estruturar todos os textos e imagens.",
-          "HTML, CSS e JavaScript trabalham juntos, desempenhando funções diferentes na construção de páginas web.",
-          "HTML é responsável exclusivamente por conectar o computador à internet."
-        ],
-        correctIndex: 3,
-        explanation: "A alternativa D está correta. As três tecnologias trabalham integradas na construção de páginas web modernas, cada uma cuidando da sua especialidade."
-      }
-    ];
-
-    const LETTERS = ["A", "B", "C", "D", "E"];
-
-    // Estado do Jogo
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let hasAnswered = false;
-    let categoryStats = {};
-
-    // Referências do DOM
-    const quizContainer = document.getElementById("quiz-container");
-    const resultContainer = document.getElementById("result-container");
-    const progressBar = document.getElementById("progress-bar");
-    const questionNumberEl = document.getElementById("question-number");
-    const questionCategoryEl = document.getElementById("question-category");
-    const questionTextEl = document.getElementById("question-text");
-    const statusPromptEl = document.getElementById("status-prompt");
-    const optionsListEl = document.getElementById("options-list");
-    const explanationBoxEl = document.getElementById("explanation-box");
-    const explanationIconEl = document.getElementById("explanation-icon");
-    const explanationTitleEl = document.getElementById("explanation-title");
-    const explanationTextEl = document.getElementById("explanation-text");
-    const feedbackStatusBarEl = document.getElementById("feedback-status-bar");
-    const nextBtn = document.getElementById("next-btn");
-    const nextBtnLabel = document.getElementById("next-btn-label");
-    const scoreCounterEl = document.getElementById("score-counter");
-    const totalCounterEl = document.getElementById("total-counter");
-    const restartBtn = document.getElementById("restart-btn");
-
-    /**
-     * Formata strings contendo tags HTML (como <h1>, <p>, <img>, etc.)
-     * escapando caracteres especiais com segurança e envolvendo tags
-     * em elementos <code class="html-tag-badge"> para leitura clara.
-     */
-    function formatTextWithCodeBadges(rawText) {
-      // 1. Escapa caracteres HTML para impedir injeção ou quebra do DOM
-      const escaped = rawText
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-      // 2. Transforma tags escapadas (&lt;tag&gt;) em badges estilizados
-      return escaped.replace(
-        /&lt;([a-zA-Z0-9]+)&gt;/g,
-        '<code class="html-tag-badge">&lt;$1&gt;</code>'
-      );
-    }
-
-    /**
-     * Inicializa ou reinicia o estado do quiz
-     */
-    function initQuiz() {
-      currentQuestionIndex = 0;
-      score = 0;
-      hasAnswered = false;
-      categoryStats = {};
-
-      // Inicializa estatísticas por categoria
-      QUESTIONS.forEach((q) => {
-        if (!categoryStats[q.category]) {
-          categoryStats[q.category] = { correct: 0, total: 0 };
-        }
-        categoryStats[q.category].total++;
-      });
-
-      scoreCounterEl.textContent = "0";
-      totalCounterEl.textContent = QUESTIONS.length.toString();
-
-      resultContainer.classList.add("hidden");
-      quizContainer.classList.remove("hidden");
-
-      renderQuestion();
-    }
-
-    /**
-     * Renderiza a questão atual na tela
-     */
-    function renderQuestion() {
-      hasAnswered = false;
-      const current = QUESTIONS[currentQuestionIndex];
-      const total = QUESTIONS.length;
-
-      // Atualiza barra de progresso
-      const progressPercent = ((currentQuestionIndex + 1) / total) * 100;
-      progressBar.style.width = `${progressPercent}%`;
-
-      // Atualiza número, categoria e enunciado
-      const formattedNum = String(currentQuestionIndex + 1).padStart(2, "0");
-      const formattedTotal = String(total).padStart(2, "0");
-      questionNumberEl.textContent = `Questão ${formattedNum} de ${formattedTotal}`;
-      questionCategoryEl.textContent = current.category;
-      questionTextEl.innerHTML = formatTextWithCodeBadges(current.question);
-
-      // Reseta instrução esquerda e esconde caixa de explicação
-      statusPromptEl.classList.remove("hidden");
-      explanationBoxEl.classList.add("hidden");
-      explanationTextEl.innerHTML = "";
-
-      // Reseta barra de status inferior e botão "Próxima Questão"
-      feedbackStatusBarEl.innerHTML = `<span class="text-slate-500">Aguardando sua resposta...</span>`;
-      nextBtn.disabled = true;
-      nextBtn.className = "inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold transition-all duration-200 bg-slate-200 text-slate-400 cursor-not-allowed";
-      nextBtnLabel.textContent = currentQuestionIndex === total - 1 ? "Ver Resultado Final" : "Próxima Questão";
-
-      // Gera os 5 botões de alternativas
-      optionsListEl.innerHTML = "";
-
-      current.options.forEach((optionText, index) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.dataset.index = index;
-        button.className =
-          "option-btn w-full text-left p-4 sm:px-5 sm:py-4 rounded-xl border-2 border-slate-300 bg-white " +
-          "hover:border-indigo-600 hover:bg-indigo-50/60 hover:-translate-y-0.5 hover:shadow-sm " +
-          "transition-all duration-150 flex items-center gap-4 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/30";
-
-        // Emblema da letra (A, B, C, D, E)
-        const badge = document.createElement("span");
-        badge.className =
-          "option-badge shrink-0 w-9 h-9 rounded-lg border border-slate-300 bg-slate-100 text-slate-700 " +
-          "font-extrabold text-sm flex items-center justify-center group-hover:border-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors";
-        badge.textContent = LETTERS[index];
-
-        // Texto da alternativa com tags formatadas
-        const label = document.createElement("span");
-        label.className = "option-label text-[15px] sm:text-[1.05rem] text-slate-800 leading-snug font-medium";
-        label.innerHTML = formatTextWithCodeBadges(optionText);
-
-        button.appendChild(badge);
-        button.appendChild(label);
-
-        button.addEventListener("click", () => handleOptionSelect(index));
-        optionsListEl.appendChild(button);
-      });
-    }
-
-    /**
-     * Trata a seleção de uma alternativa pelo usuário
-     */
-    function handleOptionSelect(selectedIndex) {
-      if (hasAnswered) return;
-      hasAnswered = true;
-
-      const current = QUESTIONS[currentQuestionIndex];
-      const isCorrect = selectedIndex === current.correctIndex;
-      const optionButtons = optionsListEl.querySelectorAll(".option-btn");
-
-      optionButtons.forEach((btn, idx) => {
-        btn.disabled = true;
-        btn.classList.remove(
-          "hover:border-indigo-600",
-          "hover:bg-indigo-50/60",
-          "hover:-translate-y-0.5",
-          "hover:shadow-sm",
-          "cursor-pointer"
-        );
-        btn.classList.add("cursor-default");
-
-        const badge = btn.querySelector(".option-badge");
-        const label = btn.querySelector(".option-label");
-
-        if (idx === current.correctIndex) {
-          // Alternativa correta sempre fica destacada em verde esmeralda
-          btn.classList.remove("border-slate-300", "bg-white");
-          btn.classList.add("option-correct", "border-green-600", "bg-green-100/90", "shadow-xs");
-
-          badge.classList.remove("border-slate-300", "bg-slate-100", "text-slate-700");
-          badge.classList.add("border-green-600", "bg-green-600", "text-white");
-          badge.innerHTML = `
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-          `;
-
-          label.classList.remove("text-slate-800", "font-medium");
-          label.classList.add("text-green-950", "font-bold");
-        } else if (idx === selectedIndex && !isCorrect) {
-          // Alternativa errada clicada fica vermelha com ícone X
-          btn.classList.remove("border-slate-300", "bg-white");
-          btn.classList.add("option-wrong", "border-red-600", "bg-red-100/90", "shadow-xs");
-
-          badge.classList.remove("border-slate-300", "bg-slate-100", "text-slate-700");
-          badge.classList.add("border-red-600", "bg-red-600", "text-white");
-          badge.innerHTML = `
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          `;
-
-          label.classList.remove("text-slate-800", "font-medium");
-          label.classList.add("text-red-950", "font-bold");
-        } else {
-          // Demais alternativas não escolhidas ficam suavizadas
-          btn.classList.add("opacity-50", "bg-slate-50");
-        }
-      });
-
-      // Atualiza pontuação e exibe caixa de explicação na coluna esquerda
-      statusPromptEl.classList.add("hidden");
-      explanationBoxEl.classList.remove("hidden");
-      explanationTextEl.innerHTML = formatTextWithCodeBadges(current.explanation);
-
-      if (isCorrect) {
-        score++;
-        categoryStats[current.category].correct++;
-        scoreCounterEl.textContent = score.toString();
-
-        // Estilo verde suave na caixa de explicação
-        explanationBoxEl.className = "animate-panel rounded-xl p-5 border-2 border-emerald-500/70 bg-emerald-50/90 space-y-2";
-        explanationIconEl.className = "w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0";
-        explanationIconEl.innerHTML = `
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        `;
-        explanationTitleEl.className = "text-sm font-extrabold uppercase tracking-wide text-emerald-900";
-        explanationTitleEl.textContent = "Resposta Correta!";
-
-        feedbackStatusBarEl.innerHTML = `
-          <span class="inline-flex items-center gap-1.5 text-emerald-700 font-bold">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-            Muito bem! Você acertou esta questão.
-          </span>
-        `;
-      } else {
-        // Estilo destaque âmbar/vermelho na caixa de explicação quando erra
-        explanationBoxEl.className = "animate-panel rounded-xl p-5 border-2 border-red-400 bg-red-50/90 space-y-2";
-        explanationIconEl.className = "w-7 h-7 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0";
-        explanationIconEl.innerHTML = `
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-          </svg>
-        `;
-        explanationTitleEl.className = "text-sm font-extrabold uppercase tracking-wide text-red-900";
-        explanationTitleEl.textContent = "Por que esta é a resposta correta?";
-
-        feedbackStatusBarEl.innerHTML = `
-          <span class="inline-flex items-center gap-1.5 text-red-700 font-bold">
-            <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
-            Resposta incorreta. Leia a explicação ao lado.
-          </span>
-        `;
-      }
-
-      // Ativa o botão de avançar
-      nextBtn.disabled = false;
-      nextBtn.className =
-        "inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold " +
-        "transition-all duration-200 bg-indigo-600 text-white hover:bg-indigo-700 active:scale-[0.99] cursor-pointer shadow-md shadow-indigo-600/20";
-    }
-
-    /**
-     * Avança para a próxima questão ou mostra os resultados finais
-     */
-    function handleNextQuestion() {
-      if (!hasAnswered) return;
-
-      if (currentQuestionIndex < QUESTIONS.length - 1) {
-        currentQuestionIndex++;
-        renderQuestion();
-      } else {
-        showResults();
-      }
-    }
-
-    /**
-     * Renderiza a tela final de desempenho
-     */
-    function showResults() {
-      quizContainer.classList.add("hidden");
-      resultContainer.classList.remove("hidden");
-
-      const total = QUESTIONS.length;
-      const percentage = Math.round((score / total) * 100);
-
-      document.getElementById("final-score").textContent = score.toString();
-      document.getElementById("final-percentage").textContent = `${percentage}%`;
-
-      const badgeEl = document.getElementById("result-badge");
-      const titleEl = document.getElementById("result-title");
-      const messageEl = document.getElementById("result-message");
-
-      if (percentage === 100) {
-        badgeEl.textContent = "Nível Mestre • 100%";
-        titleEl.textContent = "Desempenho Perfeito!";
-        messageEl.textContent = "Você gabaritou todas as 20 questões! Seu domínio sobre HTML, CSS, JavaScript e fundamentos da Web está excelente.";
-      } else if (percentage >= 75) {
-        badgeEl.textContent = "Ótimo Aproveitamento";
-        titleEl.textContent = "Excelente Resultado!";
-        messageEl.textContent = "Você acertou a grande maioria das questões e demonstrou ótima compreensão sobre estruturação e estilização web.";
-      } else if (percentage >= 50) {
-        badgeEl.textContent = "Bom Caminho";
-        titleEl.textContent = "Bom Progresso!";
-        messageEl.textContent = "Você já domina os conceitos principais. Revise os tópicos abaixo e jogue novamente para alcançar uma pontuação ainda maior.";
-      } else {
-        badgeEl.textContent = "Hora de Revisar";
-        titleEl.textContent = "Continue Praticando!";
-        messageEl.textContent = "Todo desenvolvedor começa pelos fundamentos. Use o detalhamento abaixo para revisar cada tema e tente novamente!";
-      }
-
-      // Renderiza detalhamento por categoria
-      const breakdownEl = document.getElementById("category-breakdown");
-      breakdownEl.innerHTML = "";
-
-      Object.entries(categoryStats).forEach(([categoryName, stats]) => {
-        const catPercent = Math.round((stats.correct / stats.total) * 100);
-        const barColor =
-          catPercent >= 80 ? "bg-emerald-500" :
-          catPercent >= 50 ? "bg-indigo-600" :
-          "bg-amber-500";
-
-        const card = document.createElement("div");
-        card.className = "p-4 rounded-xl border border-slate-200 bg-slate-50/80 space-y-2";
-        card.innerHTML = `
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-sm font-bold text-slate-800">${categoryName}</span>
-            <span class="text-xs font-extrabold px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700">
-              ${stats.correct} de ${stats.total} (${catPercent}%)
-            </span>
-          </div>
-          <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
-            <div class="h-full ${barColor} rounded-full transition-all duration-700" style="width: ${catPercent}%"></div>
-          </div>
-        `;
-        breakdownEl.appendChild(card);
-      });
-    }
-
-    // Eventos de clique
-    nextBtn.addEventListener("click", handleNextQuestion);
-    restartBtn.addEventListener("click", initQuiz);
-
-    // Suporte completo a teclado (A-E ou 1-5 para responder, Enter para avançar)
-    document.addEventListener("keydown", (event) => {
-      if (quizContainer.classList.contains("hidden")) return;
-
-      const key = event.key.toUpperCase();
-
-      if (!hasAnswered) {
-        const letterIdx = LETTERS.indexOf(key);
-        if (letterIdx !== -1) {
-          handleOptionSelect(letterIdx);
-          return;
-        }
-        if (["1", "2", "3", "4", "5"].includes(key)) {
-          handleOptionSelect(Number(key) - 1);
-          return;
-        }
-      } else if (event.key === "Enter" || event.key === "ArrowRight") {
-        event.preventDefault();
-        handleNextQuestion();
-      }
-    });
-
-    // Inicia o quiz ao carregar a página
-    window.addEventListener("DOMContentLoaded", initQuiz);
-  </script>
+    <div class="bottombar">
+      <div class="status" id="statusText">Escolha uma alternativa para continuar.</div>
+      <button class="next-btn" id="nextBtn" disabled>Continuar →</button>
+    </div>
+  </div>
+</section>
+
+<section id="result" class="screen">
+  <div class="result-card">
+    <div class="kicker">Você concluiu</div>
+    <h2>Quiz finalizado!</h2>
+    <p>Parabéns por concluir a revisão. Continue praticando para fortalecer o conteúdo.</p>
+    <div class="score-big" id="finalScore">0 / 30</div>
+    <p id="finalMessage">Muito bem!</p>
+    <div class="result-actions">
+      <button class="start-btn" id="restartBtn">Jogar novamente</button>
+      <button class="soft-btn" id="backHomeBtn">Tela inicial</button>
+    </div>
+  </div>
+</section>
+
+<section id="rotate" class="screen hidden">
+  <div class="rotate-box">
+    <div class="icon">📱 ↻</div>
+    <h2>Gire o celular</h2>
+    <p>Este quiz foi preparado para jogar com o celular na horizontal. Vire a tela para continuar.</p>
+  </div>
+</section>
+
+<script>
+const questions = [
+  {cat:"Dados e informações", icon:"q01", q:"Qual alternativa explica corretamente a diferença entre dados e informações?", a:["Dados são registros brutos; informações são dados organizados e interpretados.","Dados são sempre imagens; informações são sempre textos.","Dados são análises prontas; informações são registros sem contexto.","Dados e informações têm sempre o mesmo significado."], c:0, e:"A alternativa correta é a primeira porque dados são elementos ainda sem interpretação completa, como números, nomes ou registros soltos. Quando esses dados são organizados, analisados e ganham sentido para alguém, eles passam a ser informação.", s:"Dados e informações são iguais?", sa:["Não. Dados são brutos e informação é organizada.","Sim. São a mesma coisa."], sc:0},
+  {cat:"Dados e informações", icon:"q02", q:"Uma escola registra notas e calcula a média da turma. A média é:", a:["Um dado bruto sem tratamento.","Uma informação obtida pelo processamento dos dados.","Um canal de transmissão.","Um dispositivo de armazenamento."], c:1, e:"A média é uma informação porque foi produzida a partir das notas, que eram os dados brutos. Houve organização e cálculo, então o resultado ganhou significado para análise da turma.", s:"A média das notas é:", sa:["Uma informação calculada.","Só um dado bruto."], sc:0},
+  {cat:"Dados e informações", icon:"q03", q:"Um supermercado cria um gráfico com os produtos mais vendidos no mês. Esse gráfico representa:", a:["Um conjunto de dados sem relação.","Uma informação que ajuda a analisar as vendas.","Um equipamento de rede.","Um sinal de transmissão."], c:1, e:"O gráfico é uma informação porque organiza os dados das vendas e facilita a interpretação dos resultados. Ele ajuda a entender o que vendeu mais e apoia a tomada de decisão.", s:"Um gráfico de vendas é:", sa:["Uma informação organizada.","Um aparelho de rede."], sc:0},
+  {cat:"Comunicação", icon:"q04", q:"Na comunicação de dados, qual elemento é responsável por enviar a mensagem?", a:["Receptor.","Canal.","Emissor.","Destino físico."], c:2, e:"O emissor é quem envia a mensagem. Em qualquer processo de comunicação, ele é a origem da informação que será transmitida.", s:"Quem envia a mensagem é o:", sa:["Emissor.","Receptor."], sc:0},
+  {cat:"Comunicação", icon:"q05", q:"Na comunicação de dados, quem recebe a mensagem é chamado de:", a:["Emissor.","Receptor.","Canal.","Protocolo."], c:1, e:"O receptor é o elemento que recebe a mensagem transmitida. Ele é o destino da comunicação.", s:"Quem recebe a mensagem é o:", sa:["Receptor.","Emissor."], sc:0},
+  {cat:"Comunicação", icon:"q06", q:"Em uma chamada de voz feita pelo Wi-Fi, qual elemento funciona como canal de comunicação?", a:["A pessoa que fala.","A pessoa que escuta.","A rede Wi-Fi usada na transmissão.","O conteúdo da conversa."], c:2, e:"O canal é o meio usado para levar a mensagem do emissor ao receptor. Nesse caso, o Wi-Fi é o meio de transmissão, portanto ele é o canal de comunicação.", s:"Na chamada, o Wi-Fi é o:", sa:["Canal de comunicação.","Pessoa que fala."], sc:0},
+  {cat:"Comunicação", icon:"q07", q:"Em uma mensagem enviada pelo celular, o texto digitado corresponde a qual elemento?", a:["Mensagem.","Receptor.","Canal.","Roteador."], c:0, e:"O texto digitado é a própria mensagem, isto é, o conteúdo que está sendo enviado durante o processo de comunicação.", s:"O texto enviado é a:", sa:["Mensagem.","Rede."], sc:0},
+  {cat:"Redes", icon:"q08", q:"O que caracteriza uma rede de computadores?", a:["Dispositivos conectados para trocar dados e compartilhar recursos.","Um computador que funciona sem comunicação.","Um programa usado apenas para editar textos.","Um conjunto de arquivos guardados em uma pasta."], c:0, e:"Uma rede de computadores é formada por dispositivos interligados para que possam trocar dados e compartilhar recursos, como internet, arquivos e impressoras.", s:"Uma rede de computadores é:", sa:["Dispositivos conectados.","Um único arquivo salvo."], sc:0},
+  {cat:"Redes", icon:"q09", q:"Qual recurso pode ser compartilhado por computadores de uma mesma rede?", a:["Somente a bateria dos aparelhos.","Impressoras e arquivos.","A tela física de todos os monitores.","A memória interna de qualquer celular, automaticamente."], c:1, e:"Em uma rede, é comum compartilhar arquivos, impressoras e conexão com a internet. Bateria, tela física e memória interna não são exemplos típicos de compartilhamento direto.", s:"O que pode ser compartilhado em uma rede?", sa:["Impressoras e arquivos.","A bateria dos aparelhos."], sc:0},
+  {cat:"Tipos de rede", icon:"q10", q:"A sigla LAN corresponde a qual tipo de rede?", a:["Rede de longa distância.","Rede metropolitana.","Rede local.","Rede mundial de satélites."], c:2, e:"LAN significa Local Area Network, ou rede de área local. Ela costuma abranger locais pequenos, como uma casa, sala ou laboratório.", s:"LAN é uma rede:", sa:["Local.","Mundial."], sc:0},
+  {cat:"Tipos de rede", icon:"q11", q:"A sigla MAN representa uma rede que normalmente cobre:", a:["Uma área metropolitana ou cidade.","Apenas um computador.","Somente uma sala.","O planeta inteiro."], c:0, e:"MAN significa Metropolitan Area Network. Esse tipo de rede costuma cobrir uma cidade ou uma grande região urbana.", s:"MAN é uma rede de:", sa:["Área metropolitana.","Uma única sala."], sc:0},
+  {cat:"Tipos de rede", icon:"q12", q:"Qual tipo de rede é utilizado para conectar grandes áreas geográficas?", a:["LAN.","MAN.","PAN.","WAN."], c:3, e:"WAN significa Wide Area Network. Ela é usada para conexões em longas distâncias, incluindo redes que ligam cidades, países e continentes.", s:"Qual rede cobre grandes distâncias?", sa:["WAN.","LAN."], sc:0},
+  {cat:"Tipos de rede", icon:"q13", q:"Qual sequência apresenta LAN, MAN e WAN na ordem correta?", a:["Local, metropolitana e longa distância.","Metropolitana, local e longa distância.","Longa distância, metropolitana e local.","Local, longa distância e metropolitana."], c:0, e:"A sequência correta é: LAN = rede local, MAN = rede metropolitana, WAN = rede de longa distância. Essa classificação depende do alcance geográfico.", s:"A sequência correta é:", sa:["Local, metropolitana, longa distância.","Longa distância, local, doméstica."], sc:0},
+  {cat:"Equipamentos", icon:"q14", q:"Qual equipamento conecta vários dispositivos por cabo em uma rede local?", a:["Repetidor.","Switch.","Microfone.","Modem de áudio."], c:1, e:"O switch é o equipamento usado para interligar vários computadores ou dispositivos cabeados dentro da mesma rede local, encaminhando os dados para o destino correto.", s:"Qual aparelho conecta vários computadores por cabo?", sa:["Switch.","Microfone."], sc:0},
+  {cat:"Equipamentos", icon:"q15", q:"Qual equipamento doméstico cria uma rede Wi-Fi para celulares e notebooks?", a:["Roteador Wi-Fi.","Switch comum sem função sem fio.","Cabo de par trançado.","Placa de som."], c:0, e:"O roteador Wi-Fi cria uma rede sem fio usando ondas de rádio. É ele quem permite que celulares e notebooks se conectem à internet sem cabo.", s:"Qual aparelho cria uma rede Wi-Fi?", sa:["Roteador Wi-Fi.","Cabo de rede."], sc:0},
+  {cat:"Equipamentos", icon:"q16", q:"O sinal Wi-Fi está fraco em outro cômodo. Qual aparelho pode ampliar a cobertura?", a:["Switch.","Repetidor de sinal.","Teclado.","Monitor."], c:1, e:"O repetidor recebe o sinal Wi-Fi existente e o retransmite, ampliando a área de cobertura. Ele não substitui o roteador, mas ajuda a levar o sinal mais longe.", s:"Qual aparelho ajuda o Wi-Fi a chegar mais longe?", sa:["Repetidor.","Teclado."], sc:0},
+  {cat:"Equipamentos", icon:"q17", q:"Qual equipamento encaminha pacotes de dados entre redes diferentes?", a:["Roteador.","Switch simples, em qualquer situação.","Repetidor de tomada.","Conector RJ-45."], c:0, e:"O roteador é responsável por encaminhar dados entre redes diferentes. É por isso que ele conecta a rede local à internet ou a outras redes.", s:"Qual aparelho liga redes diferentes?", sa:["Roteador.","Conector."], sc:0},
+  {cat:"Equipamentos", icon:"q18", q:"Em um laboratório com 30 computadores ligados por cabo, qual equipamento pode centralizar as conexões da rede local?", a:["Switch.","Repetidor Wi-Fi.","Caixa de som.","Projetor."], c:0, e:"O switch é ideal nesse cenário porque oferece várias portas de rede e centraliza as conexões dos computadores em um laboratório cabeado.", s:"Em um laboratório cabeado, usamos:", sa:["Switch.","Projetor."], sc:0},
+  {cat:"Equipamentos", icon:"q19", q:"Qual é a função geral de um modem em uma conexão de internet?", a:["Converter sinais para permitir a comunicação com o serviço de acesso.","Exibir imagens na tela.","Armazenar permanentemente todos os arquivos.","Distribuir energia para os computadores."], c:0, e:"O modem faz a conversão de sinais necessária para que a comunicação com a operadora de internet aconteça. Ele não é um monitor nem um dispositivo de armazenamento.", s:"O modem ajuda a:", sa:["Estabelecer a conexão com a operadora.","Guardar arquivos no computador."], sc:0},
+  {cat:"Meios de transmissão", icon:"q20", q:"Como a fibra óptica transmite os dados?", a:["Por pulsos de luz.","Por ondas sonoras.","Por sinais elétricos em fios de cobre.","Por tinta em filamentos."], c:0, e:"Na fibra óptica, os dados são transmitidos por pulsos de luz que percorrem o interior da fibra. Esse é um dos motivos de ela ter alta velocidade e boa qualidade de transmissão.", s:"A fibra óptica transmite dados por:", sa:["Luz.","Som."], sc:0},
+  {cat:"Meios de transmissão", icon:"q21", q:"Uma vantagem da fibra óptica em relação aos cabos metálicos é:", a:["Não sofrer interferência eletromagnética na transmissão óptica.","Precisar sempre de mais repetidores que o cobre.","Transmitir dados por ondas de rádio.","Ser feita de fios de cobre trançados."], c:0, e:"Como usa luz em vez de sinais elétricos em cobre, a fibra óptica não sofre interferências eletromagnéticas da mesma forma que cabos metálicos. Essa é uma grande vantagem técnica.", s:"Uma vantagem da fibra óptica é:", sa:["Resistir a interferências eletromagnéticas.","Criar Wi-Fi sem roteador."], sc:0},
+  {cat:"Meios de transmissão", icon:"q22", q:"Por que os fios de um cabo de par trançado são torcidos em pares?", a:["Para reduzir interferências eletromagnéticas.","Para transformar eletricidade em luz.","Para criar uma rede Wi-Fi.","Para eliminar toda e qualquer perda de sinal."], c:0, e:"Os fios são trançados para reduzir interferências externas e também interferências entre os próprios pares do cabo. Isso melhora a qualidade da transmissão.", s:"Por que os fios são trançados?", sa:["Para reduzir interferências.","Para criar Wi-Fi."], sc:0},
+  {cat:"Meios de transmissão", icon:"q23", q:"Qual meio de transmissão utiliza fios metálicos, geralmente de cobre?", a:["Fibra óptica.","Par trançado.","Ondas de rádio.","Luz no espaço livre."], c:1, e:"O cabo de par trançado utiliza condutores metálicos, normalmente de cobre, para transmitir sinais elétricos.", s:"Qual cabo usa fios de cobre?", sa:["Par trançado.","Fibra óptica."], sc:0},
+  {cat:"Meios de transmissão", icon:"q24", q:"Qual alternativa apresenta um meio de transmissão sem fio?", a:["Cabo coaxial.","Fibra óptica.","Ondas de rádio.","Par trançado."], c:2, e:"As ondas de rádio são um meio de transmissão sem fio. Elas são usadas em tecnologias como Wi-Fi, rádio e comunicação móvel.", s:"Qual meio transmite dados sem cabo?", sa:["Ondas de rádio.","Par trançado."], sc:0},
+  {cat:"Meios de transmissão", icon:"q25", q:"O conector RJ-45 é comumente utilizado em qual tipo de cabo de rede?", a:["Par trançado Ethernet.","Fibra óptica monomodo, diretamente.","Cabo de energia residencial.","Cabo HDMI."], c:0, e:"O conector RJ-45 é usado em cabos de rede Ethernet de par trançado. Ele é muito comum em redes locais cabeadas.", s:"O conector RJ-45 é usado em:", sa:["Cabo de rede par trançado.","Cabo de energia."], sc:0},
+  {cat:"Comunicação", icon:"q26", q:"Qual é o nome dado ao conjunto de regras que permite a comunicação entre dispositivos?", a:["Protocolo de comunicação.","Monitoramento visual.","Memória RAM.","Interface gráfica."], c:0, e:"Protocolos de comunicação são conjuntos de regras que definem como os dados devem ser organizados, enviados, recebidos e interpretados pelos dispositivos.", s:"As regras da comunicação são chamadas de:", sa:["Protocolos.","Monitores."], sc:0},
+  {cat:"Comunicação", icon:"q27", q:"Em uma rede de computadores, os dados podem ser divididos em pequenas unidades para transmissão. Essas unidades são chamadas de:", a:["Pacotes.","Pastas.","Pixels.","Baterias."], c:0, e:"Os dados são divididos em pacotes para facilitar o envio pela rede. Cada pacote carrega parte da informação e dados de controle para chegar ao destino correto.", s:"As pequenas unidades de dados são:", sa:["Pacotes.","Pastas."], sc:0},
+  {cat:"Redes", icon:"q28", q:"Em uma topologia estrela, os dispositivos são conectados:", a:["A um ponto central, como um switch.","Em um único cabo circular fechado, obrigatoriamente.","Sem qualquer ligação entre eles.","Somente por conexão via satélite."], c:0, e:"Na topologia estrela, cada dispositivo se conecta a um ponto central, normalmente um switch. Essa organização facilita o gerenciamento da rede.", s:"Na topologia estrela, os aparelhos se ligam:", sa:["A um ponto central.","Sem centro algum."], sc:0},
+  {cat:"Redes", icon:"q29", q:"A internet pode ser definida como:", a:["Uma rede mundial de redes interconectadas.","Um único computador central de uma escola.","Um tipo de cabo de cobre.","Um programa de edição de imagens."], c:0, e:"A internet é uma rede mundial formada por muitas redes interligadas. Ela conecta pessoas, dispositivos e serviços em escala global.", s:"A internet é:", sa:["Uma rede mundial de redes.","Um computador único."], sc:0},
+  {cat:"Equipamentos", icon:"q30", q:"Qual dispositivo permite que equipamentos sem fio se conectem a uma rede local, oferecendo acesso Wi-Fi?", a:["Ponto de acesso (Access Point).","Switch não gerenciável sem rádio.","Cabo de energia.","Conversor de áudio."], c:0, e:"O ponto de acesso, ou Access Point, fornece conectividade sem fio à rede local. Ele permite que celulares, tablets e notebooks entrem na rede via Wi-Fi.", s:"Qual aparelho oferece acesso Wi-Fi à rede local?", sa:["Ponto de acesso.","Cabo de energia."], sc:0}
+];
+
+
+const photoMap = {"q01": {"file": "Calc4 - 2.png", "label": "Planilha com tabela de dados e gráficos"}, "q02": {"file": "Calc4 - 2.png", "label": "Planilha com dados e cálculo"}, "q03": {"file": "Supermarket shelves.jpg", "label": "Prateleiras de supermercado"}, "q04": {"file": "Videoconference.png", "label": "Pessoa em videoconferência usando microfone e headset"}, "q05": {"file": "Videoconference.png", "label": "Pessoa em videoconferência usando headset"}, "q06": {"file": "WifiAccessPoint.jpg", "label": "Ponto de acesso Wi-Fi"}, "q07": {"file": "Modern Smart-phone Text Message.png", "label": "Mensagem de texto em smartphone"}, "q08": {"file": "Computernetwork.png", "label": "Diagrama de uma rede de computadores"}, "q09": {"file": "Network printing.jpg", "label": "Impressão compartilhada em rede"}, "q10": {"file": "Home LAN local area network example diagram.png", "label": "Diagrama de uma rede local doméstica"}, "q11": {"file": "Aerial View of Tokyo Metropolitan Area.jpg", "label": "Vista aérea de uma região metropolitana"}, "q12": {"file": "Internet Tube.png", "label": "Mapa de cabos submarinos de internet"}, "q13": {"file": "LAN WAN scheme.svg", "label": "Diagrama comparativo de LAN e WAN"}, "q14": {"file": "EthernetSwitch.jpg", "label": "Switch Ethernet com cabos de rede"}, "q15": {"file": "Home Gateway and Wi-Fi Router.jpg", "label": "Roteador Wi-Fi doméstico"}, "q16": {"file": "Wifi Range Extender.jpg", "label": "Repetidor de sinal Wi-Fi"}, "q17": {"file": "LAN-physicalTopology.png", "label": "Diagrama físico de uma rede com roteador"}, "q18": {"file": "EthernetSwitch2.jpg", "label": "Switch Ethernet com portas e cabos"}, "q19": {"file": "Modem internet.jpg", "label": "Modem de internet"}, "q20": {"file": "Fibres optique.jpg", "label": "Fibras ópticas expostas"}, "q21": {"file": "Fibre optic internet and cables.jpg", "label": "Cabos de fibra óptica"}, "q22": {"file": "UTP cable inside.jpg", "label": "Interior de cabo UTP mostrando pares trançados"}, "q23": {"file": "UTP cable.jpg", "label": "Cabo UTP de cobre"}, "q24": {"file": "WifiAccessPoint.jpg", "label": "Ponto de acesso Wi-Fi"}, "q25": {"file": "RJ45 Ethernet Cable.jpg", "label": "Cabo Ethernet com conector RJ45"}, "q26": {"file": "Protocollo03.png", "label": "Diagrama de protocolo de rede"}, "q27": {"file": "IP packet.png", "label": "Diagrama de pacote IP"}, "q28": {"file": "StarNetwork.svg", "label": "Diagrama de topologia estrela"}, "q29": {"file": "Internet Tube.png", "label": "Mapa de cabos submarinos da internet"}, "q30": {"file": "WifiAccessPoint.jpg", "label": "Ponto de acesso Wi-Fi"}};
+function photoMarkup(key){
+  const item = photoMap[key];
+  if(!item) return `<div class="photo-error">Imagem não cadastrada para esta questão.</div>`;
+  const encoded = encodeURIComponent(item.file).replace(/%20/g, "_");
+  const imageUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encoded}?width=1000`;
+  const pageUrl = `https://commons.wikimedia.org/wiki/File:${encoded}`;
+  return `<img src="${imageUrl}" alt="${item.label}" loading="eager" referrerpolicy="no-referrer"
+    onerror="this.hidden=true;this.nextElementSibling.textContent='Não foi possível carregar esta fotografia. Abra a fonte.'">
+    <div class="photo-credit"><a href="${pageUrl}" target="_blank" rel="noopener">${item.label} · Wikimedia Commons</a></div>`;
+}
+
+const $ = id => document.getElementById(id);
+let current = 0;
+let score = 0;
+let answered = false;
+let adapted = false;
+
+function tinyVibrate(pattern){ if(navigator.vibrate){ try{ navigator.vibrate(pattern); }catch(e){} } }
+function setAdapt(value){
+  adapted = value;
+  document.body.classList.toggle("adapted", value);
+  $("adaptYes").classList.toggle("selected", value);
+  $("adaptNo").classList.toggle("selected", !value);
+  $("adaptYes").setAttribute("aria-pressed", String(value));
+  $("adaptNo").setAttribute("aria-pressed", String(!value));
+}
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+}
+async function goFullscreen(){
+  try{ if(!document.fullscreenElement){ await document.documentElement.requestFullscreen(); } }catch(e){}
+  try{ if(screen.orientation && screen.orientation.lock){ await screen.orientation.lock("landscape"); } }catch(e){}
+}
+function resetPopup(){
+  const p = $("feedbackPopup");
+  p.className = "popup";
+  $("popupTitle").textContent = "Resposta";
+  $("popupText").textContent = "";
+  $("popupMini").textContent = "Toque em continuar para avançar.";
+  $("popupIcon").textContent = "✓";
+}
+function render(){
+  const q = questions[current];
+  answered = false;
+  resetPopup();
+  $("progressLabel").textContent = `${current+1} / ${questions.length}`;
+  $("progressBar").style.width = `${(current/questions.length)*100}%`;
+  $("chipIndex").textContent = `Questão ${String(current+1).padStart(2,"0")}`;
+  $("chipCat").textContent = q.cat;
+  $("questionText").textContent = adapted ? q.s : q.q;
+  $("visualBox").innerHTML = photoMarkup(q.icon);
+
+  const options = adapted ? q.sa : q.a;
+  $("optionsBox").innerHTML = "";
+  options.forEach((text, i) => {
+    const btn = document.createElement("button");
+    btn.className = "option pulse";
+    btn.type = "button";
+    btn.innerHTML = `<span class="letter">${"ABCD"[i]}</span><span>${text}</span>`;
+    btn.addEventListener("click", () => selectOption(i));
+    $("optionsBox").appendChild(btn);
+  });
+
+  $("statusText").textContent = "Escolha uma alternativa para continuar.";
+  $("nextBtn").disabled = true;
+  $("nextBtn").textContent = current === questions.length - 1 ? "Ver resultado" : "Continuar →";
+}
+function selectOption(choice){
+  if(answered) return;
+  answered = true;
+  const q = questions[current];
+  const correct = adapted ? q.sc : q.c;
+  const buttons = [...$("optionsBox").children];
+  const isCorrect = choice === correct;
+  if(isCorrect){ score++; tinyVibrate([18, 18, 18]); }
+  else{ tinyVibrate([30, 26, 30]); }
+
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if(i === correct) btn.classList.add("correct");
+    else if(i === choice) btn.classList.add("wrong");
+    else btn.classList.add("dim");
+  });
+
+  const popup = $("feedbackPopup");
+  popup.classList.add("show", isCorrect ? "correct" : "wrong");
+  $("popupIcon").textContent = isCorrect ? "✓" : "!";
+  $("popupTitle").textContent = isCorrect ? "Acertou!" : "Ops, não foi dessa vez";
+  if(isCorrect){
+    $("popupText").textContent = adapted
+      ? "Resposta correta. Muito bem!"
+      : q.e;
+    $("popupMini").textContent = "Muito bem! Toque em continuar.";
+    $("statusText").textContent = "Resposta correta!";
+  } else {
+    const options = adapted ? q.sa : q.a;
+    const explain = adapted
+      ? `A resposta correta é: ${options[correct]}.`
+      : `Alternativa correta: ${q.a[correct]}. ${q.e}`;
+    $("popupText").textContent = explain;
+    $("popupMini").textContent = "Leia a explicação e toque em continuar.";
+    $("statusText").textContent = "Veja a explicação abaixo e continue.";
+  }
+
+  $("nextBtn").disabled = false;
+}
+function finish(){
+  showScreen("result");
+  $("finalScore").textContent = `${score} / ${questions.length}`;
+  let msg = "Continue estudando!";
+  if(score >= 26) msg = "Excelente desempenho! Você está muito bem preparado.";
+  else if(score >= 19) msg = "Bom trabalho! Revise os pontos que ainda geram dúvida.";
+  else if(score >= 12) msg = "Você está avançando. Refaça o quiz e use as explicações para fixar.";
+  else msg = "Cada tentativa conta. Refaça com calma e aproveite as explicações.";
+  $("finalMessage").textContent = msg;
+}
+$("startBtn").addEventListener("click", async () => {
+  await goFullscreen();
+  current = 0;
+  score = 0;
+  document.body.classList.add("playing");
+  showScreen("game");
+  render();
+});
+$("adaptYes").addEventListener("click", () => setAdapt(true));
+$("adaptNo").addEventListener("click", () => setAdapt(false));
+
+$("nextBtn").addEventListener("click", () => {
+  if(!answered) return;
+  if(current < questions.length - 1){
+    current++;
+    render();
+  } else {
+    finish();
+  }
+});
+$("exitBtn").addEventListener("click", () => {
+  document.body.classList.remove("playing");
+  showScreen("home");
+  if(document.fullscreenElement){ document.exitFullscreen().catch(()=>{}); }
+});
+$("restartBtn").addEventListener("click", () => {
+  current = 0;
+  score = 0;
+  document.body.classList.add("playing");
+  showScreen("game");
+  render();
+});
+$("backHomeBtn").addEventListener("click", () => {
+  document.body.classList.remove("playing");
+  showScreen("home");
+  if(document.fullscreenElement){ document.exitFullscreen().catch(()=>{}); }
+});
+document.addEventListener("contextmenu", e => e.preventDefault());
+setAdapt(false);
+</script>
 </body>
 </html>
